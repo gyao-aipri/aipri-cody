@@ -1,838 +1,1055 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아이프리 코디 도감 & 이미지 검색 (AiPri Coord Finder)</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Font Awesome Icons for accent details -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Noto Sans KR, Kosugi Maru -->
-    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        aipri: {
-                            pink: '#FF70B8',
-                            lightpink: '#FFF0F5',
-                            purple: '#A855F7',
-                            softpurple: '#F3E8FF',
-                            blue: '#3B82F6',
-                            mint: '#10B981',
-                            yellow: '#F59E0B',
-                            gold: '#ECC94B',
-                            dark: '#2D3748'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Noto Sans KR', 'sans-serif'],
-                        ja: ['Kosugi Maru', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        body {
-            background-color: #FAF5FF;
-            background-image: radial-gradient(#F3E8FF 1.5px, transparent 1.5px), radial-gradient(#F3E8FF 1.5px, #FAF5FF 1.5px);
-            background-size: 30px 30px;
-            background-position: 0 0, 15px 15px;
-        }
-        .card-shadow {
-            box-shadow: 0 10px 25px -5px rgba(255, 112, 184, 0.15), 0 8px 10px -6px rgba(168, 85, 247, 0.1);
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #F3E8FF;
-            border-radius: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #FF70B8;
-            border-radius: 8px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secret AiPri Cody Manager</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #fdf2f8;
+    }
+    .jp-font {
+      font-family: 'Kosugi Maru', 'Noto Sans KR', sans-serif;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(251, 207, 232, 0.5);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #fbcfe8;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #f472b6;
+      border-radius: 4px;
+    }
+  </style>
 </head>
-<body class="text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+<body class="min-h-screen text-slate-800 pb-12">
 
-    <!-- Header Navigation -->
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-pink-200 shadow-sm">
-        <div class="max-w-7xl mx-mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-400 to-purple-500 flex items-center justify-center text-white shadow-md transform rotate-3">
-                    <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 bg-clip-text text-transparent leading-tight">
-                        아이프리 코디 도감
-                    </h1>
-                    <p class="text-xs text-slate-500 font-medium">AiPri Coord Finder & Dictionary</p>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-2">
-                <button onclick="openModal('addModal')" class="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-xl text-sm shadow-sm transition hover:shadow-md transform hover:-translate-y-0.5">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    <span>코디 등록</span>
-                </button>
-            </div>
+  <!-- PASSWORD MODAL (Private Lock) -->
+  <div id="lockModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-pink-300 text-center relative overflow-hidden">
+      <div class="w-16 h-16 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-inner">
+        <i data-lucide="lock"></i>
+      </div>
+      <h2 id="lockTitle" class="text-2xl font-black text-pink-600 mb-2">비밀번호 확인</h2>
+      <p id="lockDesc" class="text-xs text-slate-500 mb-6">나만의 아이프리 코디 도감에 접근하려면 비밀번호를 입력하세요.</p>
+      
+      <form id="lockForm" onsubmit="handleAuth(event)" class="space-y-4">
+        <div>
+          <input type="password" id="passInput" placeholder="비밀번호 입력" required
+            class="w-full px-4 py-3 text-center text-lg font-bold rounded-2xl border-2 border-pink-200 focus:border-pink-500 focus:outline-none transition">
         </div>
+        <button type="submit" id="lockSubmitBtn"
+          class="w-full py-3 bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold rounded-2xl shadow-lg hover:from-pink-500 hover:to-purple-500 transition">
+          접속하기
+        </button>
+      </form>
+      <p id="authError" class="text-xs text-red-500 mt-3 hidden font-bold">비밀번호가 일치하지 않습니다.</p>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <div id="appContainer" class="hidden max-w-6xl mx-auto px-4 pt-6">
+
+    <!-- HEADER -->
+    <header class="glass-card rounded-3xl p-5 mb-6 shadow-md flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-tr from-pink-400 to-purple-400 text-white rounded-2xl flex items-center justify-center shadow-md">
+          <i data-lucide="sparkles" class="w-7 h-7"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-black tracking-tight text-pink-600">아이프리 코디 도감</h1>
+          <p class="text-xs text-slate-500 font-medium">나만의 Private 비밀 코디 & QR 관리 시스템</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openAddModal()" class="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl text-sm font-bold shadow-md transition flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> 코디 등록
+        </button>
+        <button onclick="exportData()" title="데이터 내보내기" class="p-2.5 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-2xl text-sm font-bold transition">
+          <i data-lucide="download" class="w-5 h-5"></i>
+        </button>
+        <label title="데이터 불러오기" class="p-2.5 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-2xl text-sm font-bold transition cursor-pointer">
+          <i data-lucide="upload" class="w-5 h-5"></i>
+          <input type="file" accept=".json" onchange="importData(event)" class="hidden">
+        </label>
+        <button onclick="changePassword()" title="비밀번호 변경" class="p-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl text-sm font-bold transition">
+          <i data-lucide="key" class="w-5 h-5"></i>
+        </button>
+      </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-
-        <!-- Top Area: Image Matcher & Search Tools -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- SEARCH & MATCHING SECTION -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      
+      <!-- IMAGE SEARCH BOX -->
+      <div class="glass-card rounded-3xl p-5 shadow-sm md:col-span-1 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <i data-lucide="camera" class="w-4 h-4 text-pink-500"></i> 사진으로 코디 찾기
+            </h2>
+            <button id="clearSearchImgBtn" onclick="clearSearchImage()" class="text-xs text-slate-400 hover:text-red-500 hidden">초기화</button>
+          </div>
+          
+          <div id="dropZone" onclick="document.getElementById('searchImgInput').click()"
+            class="border-2 border-dashed border-pink-300 hover:border-pink-500 bg-pink-50/50 rounded-2xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden">
+            <input type="file" id="searchImgInput" accept="image/*" onchange="handleSearchImage(event)" class="hidden">
             
-            <!-- Photo Upload / Similarity Search Box (Left Column: 5/12) -->
-            <div class="lg:col-span-5 bg-white rounded-3xl p-5 border border-pink-100 card-shadow flex flex-col">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="font-bold text-slate-800 flex items-center space-x-2">
-                        <i data-lucide="camera" class="w-5 h-5 text-pink-500"></i>
-                        <span>사진으로 유사 코디 찾기</span>
-                    </h2>
-                    <span class="text-xs font-semibold px-2.5 py-1 bg-pink-50 text-pink-600 rounded-full border border-pink-200">
-                        유사도 AI 매칭
-                    </span>
-                </div>
-
-                <!-- Dropzone Area -->
-                <div id="dropzone" class="border-2 border-dashed border-pink-300 hover:border-purple-400 bg-pink-50/40 hover:bg-purple-50/30 rounded-2xl p-4 text-center cursor-pointer transition flex-1 flex flex-col justify-center items-center relative overflow-hidden group">
-                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                    
-                    <div id="uploadPrompt" class="space-y-2 py-4">
-                        <div class="w-14 h-14 mx-auto bg-pink-100 group-hover:scale-110 text-pink-500 rounded-2xl flex items-center justify-center transition duration-300">
-                            <i data-lucide="image-plus" class="w-7 h-7"></i>
-                        </div>
-                        <p class="text-sm font-semibold text-slate-700">코디 사진이나 카드를 얹어주세요</p>
-                        <p class="text-xs text-slate-400">클릭하거나 이미지를 끌어다 놓기</p>
-                    </div>
-
-                    <!-- Image Preview Container -->
-                    <div id="uploadPreviewContainer" class="hidden w-full h-full flex flex-col items-center justify-center relative">
-                        <img id="uploadedPreview" src="" alt="Upload Preview" class="max-h-48 object-contain rounded-xl border border-slate-200 shadow-sm">
-                        <button onclick="clearImageUpload(event)" class="absolute top-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white rounded-full p-1.5 transition">
-                            <i data-lucide="x" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Color Extraction & Scan Status -->
-                <div id="matchStatus" class="hidden mt-3 p-3 bg-purple-50 rounded-xl border border-purple-100 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <div class="animate-spin text-purple-600"><i data-lucide="loader-2" class="w-4 h-4"></i></div>
-                        <span class="text-xs font-medium text-purple-700" id="statusText">색상 및 특징 벡터 분석 중...</span>
-                    </div>
-                    <span id="matchScoreTag" class="text-xs font-bold text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full"></span>
-                </div>
+            <div id="dropPrompt" class="space-y-1">
+              <i data-lucide="image-plus" class="w-8 h-8 text-pink-400 mx-auto"></i>
+              <p class="text-xs font-semibold text-pink-600">사진 업로드 / 클릭</p>
+              <p class="text-[10px] text-slate-400">유사한 색상 및 패턴의 코디 검색</p>
             </div>
-
-            <!-- Japanese-Korean Translator Tool & Search Filter Bar (Right Column: 7/12) -->
-            <div class="lg:col-span-7 space-y-4">
-                
-                <!-- Quick Japanese -> Korean Translation Box -->
-                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden">
-                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                    
-                    <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center space-x-2">
-                            <i data-lucide="languages" class="w-5 h-5 text-pink-300"></i>
-                            <h3 class="font-bold text-sm tracking-wide">일본어 코디명 스마트 한국어 번역기</h3>
-                        </div>
-                        <span class="text-[11px] bg-white/20 text-purple-100 px-2 py-0.5 rounded-full font-medium">자연스러운 번역 적용</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-purple-200 mb-1">일본어 원문 입력</label>
-                            <input type="text" id="translatorInput" placeholder="例: フラワーカフェピンク" 
-                                   oninput="handleQuickTranslate()"
-                                   class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-300 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 font-ja">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-purple-200 mb-1">다듬어진 한국어 명칭</label>
-                            <div id="translatorOutput" class="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-xl text-white font-bold text-sm min-h-[38px] flex items-center">
-                                번역 결과가 여기에 표시됩니다.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Text Search & Filters Bar -->
-                <div class="bg-white rounded-3xl p-4 border border-pink-100 card-shadow space-y-3">
-                    <!-- Search Input -->
-                    <div class="relative">
-                        <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="코디 이름 검색 (한국어 / 日本語)..." 
-                               class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition">
-                    </div>
-
-                    <!-- Category Source Badges (소속 구분) -->
-                    <div>
-                        <div class="text-xs font-bold text-slate-500 mb-1.5 flex items-center justify-between">
-                            <span>소속 구분 (시리즈/구분)</span>
-                            <button onclick="resetCategoryFilter()" class="text-[11px] text-pink-500 hover:underline">전체보기</button>
-                        </div>
-                        <div class="flex flex-wrap gap-1.5" id="categoryBadgeContainer">
-                            <!-- Dynamically generated badges -->
-                        </div>
-                    </div>
-
-                    <!-- Representative Color Swatches (대표색 필터) -->
-                    <div>
-                        <div class="text-xs font-bold text-slate-500 mb-1.5 flex items-center justify-between">
-                            <span>대표색 선택</span>
-                            <button onclick="resetColorFilter()" class="text-[11px] text-pink-500 hover:underline">색상 초기화</button>
-                        </div>
-                        <div class="flex flex-wrap gap-2 items-center" id="colorSwatchContainer">
-                            <!-- Dynamically generated color swatches -->
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- Main Display: Coordinates Grid -->
-        <section class="space-y-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <h2 class="text-lg font-bold text-slate-800">등록된 코디 목록</h2>
-                    <span id="resultCount" class="bg-pink-100 text-pink-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0개</span>
-                </div>
-                <!-- Sort option -->
-                <select id="sortBy" onchange="applyFilters()" class="text-xs border border-slate-200 bg-white rounded-xl px-3 py-1.5 text-slate-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
-                    <option value="default">등록순</option>
-                    <option value="name">이름순</option>
-                    <option value="source">소속별</option>
-                </select>
-            </div>
-
-            <!-- Coord Cards Grid -->
-            <div id="coordGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                <!-- Cards render dynamically -->
-            </div>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="hidden py-16 text-center bg-white rounded-3xl border border-dashed border-pink-200 card-shadow space-y-3">
-                <div class="w-16 h-16 mx-auto bg-pink-50 rounded-full flex items-center justify-center text-pink-400">
-                    <i data-lucide="sparkles" class="w-8 h-8"></i>
-                </div>
-                <h3 class="font-bold text-slate-700">조건에 맞는 코디가 없습니다.</h3>
-                <p class="text-xs text-slate-400">검색어나 필터 조건을 변경하거나 새 코디를 직접 등록해 보세요!</p>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-pink-100 py-6 mt-12 text-center text-xs text-slate-400">
-        <div class="max-w-7xl mx-auto px-4 space-y-1">
-            <p class="font-medium text-slate-500">아이프리(Secret AiPri) 코디 데이터베이스 & 검색 도구</p>
-            <p>© 2026 AiPri Fan Project. Designed for easy coordination matching.</p>
+            
+            <img id="previewSearchImg" class="hidden absolute inset-0 w-full h-full object-contain bg-white/90 p-2">
+          </div>
         </div>
-    </footer>
 
-    <!-- Detail Modal -->
-    <div id="detailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-pink-100 flex flex-col">
-            <!-- Modal Header -->
-            <div class="p-4 sm:p-6 border-b border-pink-100 flex items-start justify-between bg-gradient-to-r from-pink-50 via-purple-50 to-white sticky top-0 z-10">
-                <div class="space-y-1">
-                    <span id="modalSourceBadge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white bg-pink-500">
-                        소속
-                    </span>
-                    <h3 id="modalKrName" class="text-xl font-black text-slate-800">코디 한국어 이름</h3>
-                    <p id="modalJaName" class="text-sm font-ja text-slate-500">日本語コーディネート名</p>
-                </div>
-                <button onclick="closeModal('detailModal')" class="text-slate-400 hover:text-slate-600 bg-white rounded-full p-2 border border-slate-200 hover:bg-slate-50 transition">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="p-4 sm:p-6 space-y-6">
-                <!-- Preview & Info Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
-                    <div class="aspect-square bg-slate-50 rounded-2xl border border-pink-100 flex items-center justify-center p-4 relative overflow-hidden shadow-inner">
-                        <img id="modalImage" src="" alt="Coord Image" class="max-h-full max-w-full object-contain drop-shadow-md">
-                        <div id="modalColorBadge" class="absolute bottom-3 right-3 flex items-center space-x-1 bg-white/90 px-2.5 py-1 rounded-full border border-slate-200 text-xs font-bold shadow-sm">
-                            <span id="modalColorDot" class="w-3 h-3 rounded-full inline-block"></span>
-                            <span id="modalColorText" class="text-slate-700">색상</span>
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-100 space-y-1">
-                            <span class="text-xs font-bold text-purple-600 block">디자인 그룹 ID</span>
-                            <p id="modalDesignGroup" class="text-sm font-medium text-slate-700">기본 디자인</p>
-                        </div>
-
-                        <div class="p-3.5 bg-pink-50/60 rounded-2xl border border-pink-100 space-y-1">
-                            <span class="text-xs font-bold text-pink-600 block">특징 및 설명</span>
-                            <p id="modalDescription" class="text-xs text-slate-600 leading-relaxed">
-                                상세 설명 정보가 등록되어 있습니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Similar Designs Section (비슷한 디자인 / 리컬러 목록) -->
-                <div class="border-t border-slate-100 pt-5 space-y-3">
-                    <div class="flex items-center space-x-2">
-                        <i data-lucide="layers" class="w-5 h-5 text-purple-500"></i>
-                        <h4 class="font-bold text-slate-800 text-sm">유사한 디자인 / 리컬러 버전</h4>
-                        <span class="text-xs text-slate-400 font-normal">(같은 디자인 틀의 다른 색상)</span>
-                    </div>
-
-                    <div id="similarList" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
-                        <!-- Similar coords rendered dynamically -->
-                    </div>
-                </div>
-            </div>
+        <div id="matchStatus" class="mt-3 text-xs text-center text-pink-500 font-bold hidden">
+          매칭 완료! 유사도순 정렬됨
         </div>
+      </div>
+
+      <!-- TEXT SEARCH & TRANSLATION TOOL -->
+      <div class="glass-card rounded-3xl p-5 shadow-sm md:col-span-2 flex flex-col justify-between space-y-4">
+        <div>
+          <h2 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+            <i data-lucide="search" class="w-4 h-4 text-purple-500"></i> 텍스트 검색 & 일본어 번역기
+          </h2>
+          <div class="flex gap-2 mb-3">
+            <div class="relative flex-1">
+              <input type="text" id="searchInput" oninput="applyFilters()" placeholder="코디 이름 검색 (한글 또는 일어)..."
+                class="w-full pl-9 pr-4 py-2.5 bg-white rounded-2xl border border-pink-200 text-xs focus:outline-none focus:border-pink-400">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            </div>
+          </div>
+
+          <!-- TRANSLATOR BOX -->
+          <div class="bg-purple-50/60 rounded-2xl p-3 border border-purple-100">
+            <div class="text-[11px] font-bold text-purple-700 mb-1.5 flex items-center gap-1">
+              <i data-lucide="languages" class="w-3.5 h-3.5"></i> 일본어 코디명 -> 자연스러운 한국어 자동 변환
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="jpTranslateInput" placeholder="예: フラワーカフェピンク"
+                class="flex-1 px-3 py-1.5 bg-white rounded-xl border border-purple-200 text-xs focus:outline-none jp-font">
+              <button onclick="runQuickTranslate()" class="px-3 py-1.5 bg-purple-500 text-white rounded-xl text-xs font-bold hover:bg-purple-600 transition">
+                변환
+              </button>
+            </div>
+            <div id="translateResult" class="text-xs font-bold text-pink-600 mt-2 min-h-[18px]"></div>
+          </div>
+        </div>
+
+        <!-- QUICK COLOR FILTER SWATCHES -->
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500 mb-1.5">대표 색상 필터</div>
+          <div id="colorSwatches" class="flex flex-wrap gap-1.5">
+            <!-- Dynamic Color Buttons -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- CATEGORY & SUB-SEASON FILTER TABS -->
+    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-4">
+      <div>
+        <div class="text-xs font-bold text-slate-500 mb-2">대분류 소속 카테고리</div>
+        <div id="mainCategoryTabs" class="flex flex-wrap gap-2">
+          <!-- Main Categories -->
+        </div>
+      </div>
+
+      <div id="subCategoryWrapper" class="pt-3 border-t border-pink-100">
+        <div class="text-xs font-bold text-slate-500 mb-2">세부 시즌 / 탄 선택</div>
+        <div id="subCategoryTabs" class="flex flex-wrap gap-1.5">
+          <!-- Sub Categories -->
+        </div>
+      </div>
+    </section>
+
+    <!-- CODY GRID RESULT -->
+    <section>
+      <div class="flex items-center justify-between mb-4 px-2">
+        <h3 class="text-base font-bold text-slate-700 flex items-center gap-2">
+          <i data-lucide="grid" class="w-4 h-4 text-pink-500"></i> 코디 목록 
+          <span id="codyCount" class="text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full font-bold">0</span>
+        </h3>
+      </div>
+
+      <div id="codyGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <!-- Cody Cards -->
+      </div>
+
+      <div id="emptyState" class="hidden text-center py-16 bg-white/60 rounded-3xl border border-dashed border-pink-200">
+        <i data-lucide="ghost" class="w-12 h-12 text-pink-300 mx-auto mb-2"></i>
+        <p class="text-sm font-bold text-slate-500">등록되었거나 조건에 맞는 코디가 없습니다.</p>
+        <p class="text-xs text-slate-400 mt-1">오른쪽 상단의 [+ 코디 등록] 버튼으로 추가해 보세요!</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ADD / EDIT CODY MODAL -->
+  <div id="addModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar p-6 shadow-2xl relative">
+      <button onclick="closeAddModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <h2 id="modalTitle" class="text-xl font-black text-pink-600 mb-4 flex items-center gap-2">
+        <i data-lucide="plus-circle" class="w-5 h-5"></i> 새 코디 등록
+      </h2>
+
+      <form id="codyForm" onsubmit="saveCody(event)" class="space-y-4">
+        <input type="hidden" id="editId">
+
+        <!-- NAMES (JP & KR) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">일본어 코디명</label>
+            <div class="flex gap-1">
+              <input type="text" id="nameJp" placeholder="예: フラワーカフェピンク" onchange="autoTranslateName()" required
+                class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400 jp-font">
+              <button type="button" onclick="autoTranslateName()" class="px-2.5 bg-purple-100 text-purple-600 text-xs font-bold rounded-xl hover:bg-purple-200">
+                번역
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">한국어 코디명</label>
+            <input type="text" id="nameKr" placeholder="예: 플라워 카페 핑크" required
+              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+          </div>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">대분류 소속</label>
+            <select id="mainCatSelect" onchange="updateSubCatDropdown()" required
+              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">세부 시즌 / 탄</label>
+            <select id="subCatSelect" required
+              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+            </select>
+          </div>
+        </div>
+
+        <!-- REPRESENTATIVE COLOR & DESIGN GROUP -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">대표 색상</label>
+            <select id="colorSelect" required
+              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1">디자인 라인그룹 (리컬러 연동용)</label>
+            <input type="text" id="designGroup" placeholder="예: 플라워 카페 드레스"
+              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+            <p class="text-[10px] text-slate-400 mt-0.5">동일 디자인의 색상 차이 코디들을 묶어줍니다.</p>
+          </div>
+        </div>
+
+        <!-- MAIN CODY IMAGE -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 mb-1">코디 대표 사진</label>
+          <input type="file" id="codyImgInput" accept="image/*" onchange="previewUploadImg(event)"
+            class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-600 hover:file:bg-pink-100">
+          <div class="mt-2 text-center">
+            <img id="codyImgPreview" class="h-28 mx-auto rounded-xl object-contain hidden border border-slate-200">
+          </div>
+        </div>
+
+        <!-- 5 QR CODES SECTION (전체, 악세, 상의, 하의, 슈즈) -->
+        <div class="border-t border-pink-100 pt-3">
+          <label class="block text-xs font-black text-purple-600 mb-2">
+            코디 QR 코드 등록 (최대 5종: 전체, 악세, 상의, 하의, 슈즈)
+          </label>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
+            
+            <!-- ALL -->
+            <div class="bg-pink-50/50 p-2 rounded-xl border border-pink-100">
+              <span class="text-[11px] font-bold text-pink-600 block mb-1">전체</span>
+              <input type="file" id="qr_all_input" accept="image/*" onchange="handleQrUpload(event, 'all')" class="hidden">
+              <button type="button" onclick="document.getElementById('qr_all_input').click()" class="w-full py-1 bg-white border border-pink-200 text-[10px] rounded-lg font-bold hover:bg-pink-100">
+                사진 선택
+              </button>
+              <img id="qr_all_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+            </div>
+
+            <!-- ACC -->
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span class="text-[11px] font-bold text-slate-600 block mb-1">악세</span>
+              <input type="file" id="qr_acc_input" accept="image/*" onchange="handleQrUpload(event, 'acc')" class="hidden">
+              <button type="button" onclick="document.getElementById('qr_acc_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
+                사진 선택
+              </button>
+              <img id="qr_acc_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+            </div>
+
+            <!-- TOP -->
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span class="text-[11px] font-bold text-slate-600 block mb-1">상의</span>
+              <input type="file" id="qr_top_input" accept="image/*" onchange="handleQrUpload(event, 'top')" class="hidden">
+              <button type="button" onclick="document.getElementById('qr_top_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
+                사진 선택
+              </button>
+              <img id="qr_top_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+            </div>
+
+            <!-- BOTTOM -->
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span class="text-[11px] font-bold text-slate-600 block mb-1">하의</span>
+              <input type="file" id="qr_bottom_input" accept="image/*" onchange="handleQrUpload(event, 'bottom')" class="hidden">
+              <button type="button" onclick="document.getElementById('qr_bottom_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
+                사진 선택
+              </button>
+              <img id="qr_bottom_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+            </div>
+
+            <!-- SHOES -->
+            <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+              <span class="text-[11px] font-bold text-slate-600 block mb-1">슈즈</span>
+              <input type="file" id="qr_shoes_input" accept="image/*" onchange="handleQrUpload(event, 'shoes')" class="hidden">
+              <button type="button" onclick="document.getElementById('qr_shoes_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
+                사진 선택
+              </button>
+              <img id="qr_shoes_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+            </div>
+
+          </div>
+        </div>
+
+        <div class="pt-4 flex gap-2">
+          <button type="button" onclick="closeAddModal()" class="flex-1 py-2.5 bg-slate-100 text-slate-600 rounded-2xl text-xs font-bold hover:bg-slate-200">
+            취소
+          </button>
+          <button type="submit" class="flex-1 py-2.5 bg-pink-500 text-white rounded-2xl text-xs font-bold hover:bg-pink-600 shadow-md">
+            저장하기
+          </button>
+        </div>
+
+      </form>
     </div>
+  </div>
 
-    <!-- Add New Coord Modal -->
-    <div id="addModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-pink-100">
-            <div class="p-5 border-b border-pink-100 flex items-center justify-between bg-pink-50/50">
-                <h3 class="font-bold text-slate-800 flex items-center space-x-2">
-                    <i data-lucide="plus-circle" class="w-5 h-5 text-pink-500"></i>
-                    <span>새 코디 등록하기</span>
-                </h3>
-                <button onclick="closeModal('addModal')" class="text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+  <!-- DETAIL MODAL -->
+  <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar p-6 shadow-2xl relative">
+      <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
 
-            <form id="addCoordForm" onsubmit="handleAddCoord(event)" class="p-5 space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">일본어 명칭 (日本語)</label>
-                    <input type="text" id="addJaName" required placeholder="例: フラワーカフェピンク" 
-                           oninput="autoTranslateInForm()"
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-ja focus:ring-2 focus:ring-pink-400 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">한국어 명칭 (자동 번역 추천)</label>
-                    <input type="text" id="addKrName" required placeholder="예: 플라워 카페 핑크" 
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">소속 (카테고리)</label>
-                        <select id="addSource" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
-                            <option value="히미프리">히미프리</option>
-                            <option value="오네프리">오네프리</option>
-                            <option value="프리마지">프리마지</option>
-                            <option value="구미">구미</option>
-                            <option value="스페셜">스페셜</option>
-                            <option value="밀피">밀피</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">대표 색상</label>
-                        <select id="addColor" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
-                            <option value="핑크">핑크</option>
-                            <option value="블루">블루</option>
-                            <option value="옐로우">옐로우</option>
-                            <option value="퍼플">퍼플</option>
-                            <option value="그린">그린</option>
-                            <option value="화이트">화이트</option>
-                            <option value="블랙">블랙</option>
-                            <option value="레드">레드</option>
-                            <option value="골드">골드</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">유사 디자인 그룹 식별키 (비슷한 디자인끼리 같게 입력)</label>
-                    <input type="text" id="addDesignGroup" placeholder="예: flower_cafe" 
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">이미지 URL (선택, 입력 안할 시 기본 생성)</label>
-                    <input type="url" id="addImageUrl" placeholder="https://..." 
-                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
-                </div>
-
-                <div class="pt-2 flex justify-end space-x-2">
-                    <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">취소</button>
-                    <button type="submit" class="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-sm font-bold shadow-sm">등록 완료</button>
-                </div>
-            </form>
-        </div>
+      <div id="detailContent">
+        <!-- Dynamic Detail View -->
+      </div>
     </div>
+  </div>
 
-    <!-- Application Script Logic -->
-    <script>
-        // 1. DATA DICTIONARIES & DATABASE
-        
-        // Japanese -> Natural Korean translation map dictionary for AiPri terminology
-        const jaToKrMap = {
-            "フラワー": "플라워", "カフェ": "카페", "ピンク": "핑크", "ブルー": "블루", "イエロー": "옐로우",
-            "パープル": "퍼플", "グリーン": "그린", "ホワイト": "화이트", "ブラック": "블랙", "レッド": "레드",
-            "ゴールド": "골드", "スター": "스타", "ハート": "하트", "リボン": "리본", "プリンセス": "프린세스",
-            "チェック": "체크", "レース": "레이스", "ドレス": "드레스", "スーツ": "수트", "スタイル": "스타일",
-            "ひみつ": "비밀의", "オーロラ": "오로라", "ムーン": "문", "サン": "썬", "スウィート": "스위트",
-            "ミント": "민트", "ベリー": "베리", "シフォン": "시폰", "ゴシック": "고딕", "フェザー": "페더",
-            "マジカル": "매지컬", "アイプリ": "아이프리", "バズリウム": "버즈리움", "ミルフィーユ": "밀피유"
-        };
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // CATEGORY DEFINITIONS
+    const CATEGORIES = {
+      'ALL': '전체',
+      'HIMI': '히미프리',
+      'ONE': '오네프리',
+      'MAGIC': '프리마지',
+      'GUMI': '구미',
+      'MILFY': '밀피',
+      'SPECIAL': '스페셜'
+    };
 
-        const SOURCES = ["전체", "히미프리", "오네프리", "프리마지", "구미", "스페셜", "밀피"];
+    const SUB_CATEGORIES = {
+      'HIMI': ['전체', '1탄', '2탄', '3탄', '4탄', '5탄', '6탄', '링 1탄', '링 2탄', '링 3탄', '링 4탄', '링 5탄', '링 6탄'],
+      'ONE': ['전체', '1탄', '2탄', '3탄', '4탄', '5탄', '6탄'],
+      'MAGIC': ['전체', '1장', '2장', '3장', '4장', '5장', '6장', '스튜디오 1・2장', '스튜디오 3・4장', '스튜디오 5・6장', '스튜디오 7・8장', '스튜디오 9장', '스튜디오 10장'],
+      'GUMI': ['전체', '히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
+      'MILFY': ['전체', '히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
+      'SPECIAL': ['전체', '스페셜']
+    };
 
-        const COLORS = [
-            { name: "핑크", hex: "#FF70B8" },
-            { name: "블루", hex: "#3B82F6" },
-            { name: "옐로우", hex: "#F59E0B" },
-            { name: "퍼플", hex: "#A855F7" },
-            { name: "그린", hex: "#10B981" },
-            { name: "화이트", hex: "#F8FAFC", border: true },
-            { name: "블랙", hex: "#1E293B" },
-            { name: "레드", hex: "#EF4444" },
-            { name: "골드", hex: "#EAB308" }
+    const COLORS = [
+      { id: 'ALL', name: '전체', bg: 'bg-slate-200', text: 'text-slate-700' },
+      { id: 'pink', name: '핑크', bg: 'bg-pink-400', text: 'text-white' },
+      { id: 'blue', name: '블루', bg: 'bg-blue-400', text: 'text-white' },
+      { id: 'yellow', name: '옐로우', bg: 'bg-amber-300', text: 'text-slate-800' },
+      { id: 'purple', name: '퍼플', bg: 'bg-purple-400', text: 'text-white' },
+      { id: 'green', name: '그린', bg: 'bg-emerald-400', text: 'text-white' },
+      { id: 'white', name: '화이트', bg: 'bg-slate-100', text: 'text-slate-700' },
+      { id: 'black', name: '블랙', bg: 'bg-slate-800', text: 'text-white' },
+      { id: 'red', name: '레드', bg: 'bg-red-500', text: 'text-white' }
+    ];
+
+    // JAPANESE TO KOREAN DICTIONARY & KATAKANA MAPPING
+    const JP_KR_DICT = {
+      'フラワー': '플라워', '카페': '카페', 'ピンク': '핑크', 'ブルー': '블루', '옐로우': 'イエロー',
+      'パープル': '퍼플', 'グリーン': '그린', 'ホワイト': '화이트', 'ブラック': '블랙', 'レッド': '레드',
+      'ドレス': '드레스', 'Style': '스타일', 'スタイル': '스타일', 'リボン': '리본', '체크': 'チェック',
+      'ハート': '하트', 'スター': '스타', '크라운': 'クラウン', 'プリンセス': '프린세스', 'ナイト': '나이트'
+    };
+
+    function translateJpToKr(text) {
+      if (!text) return '';
+      let res = text;
+      Object.keys(JP_KR_DICT).forEach(jp => {
+        res = res.replace(new RegExp(jp, 'g'), JP_KR_DICT[jp]);
+      });
+
+      // Katakana to Kana transliteration map fallback
+      const katakanaMap = {
+        'ア':'아','イ':'이','ウ':'우','エ':'에','オ':'오',
+        'カ':'카','キ':'키','ク':'쿠','ケ':'케','コ':'코',
+        'サ':'사','シ':'시','ス':'스','セ':'세','ソ':'소',
+        'タ':'타','チ':'치','ツ':'츠','テ':'테','ト':'토',
+        'ナ':'나','ニ':'니','ヌ':'누','ネ':'네','ノ':'노',
+        'ハ':'하','ヒ':'히','フ':'후','ヘ':'헤','ホ':'호',
+        'マ':'마','ミ':'미','ム':'무','メ':'메','モ':'모',
+        'ヤ':'야','ユ':'유','ヨ':'요',
+        'ラ':'라','リ':'리','ル':'루','レ':'레','ロ':'로',
+        'ワ':'와','ヲ':'워','ン':'응',
+        'ガ':'가','ギ':'기','グ':'구','ゲ':'게','ゴ':'고',
+        'ザ':'자','ジ':'지','ズ':'즈','ゼ':'제','ゾ':'조',
+        'ダ':'다','ヂ':'지','ヅ':'즈','デ':'데','ド':'도',
+        'バ':'바','ビ':'비','ブ':'부','ベ':'베','ボ':'보',
+        'パ':'파','ピ':'피','プ':'푸','ペ':'페','ポ':'포',
+        'ッ':'ᆺ','ー':''
+      };
+
+      let transliterated = '';
+      for (let i = 0; i < res.length; i++) {
+        let ch = res[i];
+        transliterated += katakanaMap[ch] || ch;
+      }
+      return transliterated;
+    }
+
+    // STATE VARIABLES
+    let codyList = [];
+    let currentMainCat = 'ALL';
+    let currentSubCat = '전체';
+    let currentColor = 'ALL';
+    let searchImgColorVec = null;
+
+    let tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
+    let tempMainImg = null;
+
+    // INITIALIZATION & AUTHENTICATION
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initLockScreen();
+    });
+
+    function initLockScreen() {
+      const savedPass = localStorage.getItem('aipri_pass');
+      if (!savedPass) {
+        document.getElementById('lockTitle').innerText = '비밀번호 설정';
+        document.getElementById('lockDesc').innerText = '나만의 아이프리 도감에서 사용할 비밀번호를 새로 설정하세요.';
+        document.getElementById('lockSubmitBtn').innerText = '설정하고 시작하기';
+      }
+    }
+
+    function handleAuth(e) {
+      e.preventDefault();
+      const input = document.getElementById('passInput').value;
+      const savedPass = localStorage.getItem('aipri_pass');
+
+      if (!savedPass) {
+        localStorage.setItem('aipri_pass', input);
+        unlockApp();
+      } else if (savedPass === input) {
+        unlockApp();
+      } else {
+        document.getElementById('authError').classList.remove('hidden');
+      }
+    }
+
+    function unlockApp() {
+      document.getElementById('lockModal').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      loadCodyData();
+      renderFilters();
+      applyFilters();
+    }
+
+    function changePassword() {
+      const newPass = prompt("새로운 비밀번호를 입력하세요:");
+      if (newPass) {
+        localStorage.setItem('aipri_pass', newPass);
+        alert("비밀번호가 변경되었습니다.");
+      }
+    }
+
+    // LOCALSTORAGE & DUMMY DATA
+    function loadCodyData() {
+      const data = localStorage.getItem('aipri_cody_list');
+      if (data) {
+        codyList = JSON.parse(data);
+      } else {
+        // Sample Initial Item
+        codyList = [
+          {
+            id: 'cody_sample_1',
+            nameJp: 'フラワーカフェピンク',
+            nameKr: '플라워 카페 핑크',
+            mainCat: 'HIMI',
+            subCat: '1탄',
+            color: 'pink',
+            designGroup: '플라워 카페 드레스',
+            mainImg: '',
+            qrs: { all: null, acc: null, top: null, bottom: null, shoes: null },
+            colorVec: [255, 192, 203]
+          }
         ];
+        saveCodyData();
+      }
+    }
 
-        // Mock Database of AiPri / PriMagi coords
-        let coordsData = [
-            {
-                id: "c1",
-                nameKr: "플라워 카페 핑크",
-                nameJa: "フラワーカフェピンク",
-                source: "히미프리",
-                color: "핑크",
-                designGroup: "flower_cafe",
-                imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&auto=format&fit=crop&q=80",
-                description: "화사한 분홍색 꽃잎 장식이 돋보이는 대표적인 카와이 스타일 카페 코디입니다."
-            },
-            {
-                id: "c2",
-                nameKr: "플라워 카페 민트",
-                nameJa: "フラワーカフェミント",
-                source: "히미프리",
-                color: "그린",
-                designGroup: "flower_cafe",
-                imageUrl: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&auto=format&fit=crop&q=80",
-                description: "플라워 카페의 상큼한 민트 컬러 리컬러 버전입니다."
-            },
-            {
-                id: "c3",
-                nameKr: "플라워 카페 옐로우",
-                nameJa: "フラワーカフェイエロー",
-                source: "구미",
-                color: "옐로우",
-                designGroup: "flower_cafe",
-                imageUrl: "https://images.unsplash.com/photo-1550614000-4895a10e1bfd?w=400&auto=format&fit=crop&q=80",
-                description: "구미 구매 특전으로 제공되는 상큼한 노란색 플라워 카페 변형 코디."
-            },
-            {
-                id: "c4",
-                nameKr: "스타 체크 블루",
-                nameJa: "スターチェックブルー",
-                source: "오네프리",
-                color: "블루",
-                designGroup: "star_check",
-                imageUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&auto=format&fit=crop&q=80",
-                description: "청량한 푸른 체크무늬와 별 모티브 가슴 장식이 매력적인 라이브 스티치 코디."
-            },
-            {
-                id: "c5",
-                nameKr: "스타 체크 퍼플",
-                nameJa: "スターチェックパープル",
-                source: "오네프리",
-                color: "퍼플",
-                designGroup: "star_check",
-                imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400&auto=format&fit=crop&q=80",
-                description: "스타 체크의 신비로운 보라색 색상 차이 버전 코디."
-            },
-            {
-                id: "c6",
-                nameKr: "버즈리움 체리 핑크",
-                nameJa: "バズリウムチェリーピンク",
-                source: "스페셜",
-                color: "핑크",
-                designGroup: "buzzrium_cherry",
-                imageUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&auto=format&fit=crop&q=80",
-                description: "스페셜 버즈리움 체인지 성공 시 발광하는 최고 희귀도의 반짝이는 코디."
-            },
-            {
-                id: "c7",
-                nameKr: "스위트 시폰 화이트",
-                nameJa: "スウィートシフォンホワイト",
-                source: "밀피",
-                color: "화이트",
-                designGroup: "sweet_chiffon",
-                imageUrl: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400&auto=format&fit=crop&q=80",
-                description: "밀피유 카드로 겹쳐서 완성할 수 있는 부드러운 순백의 레이스 코디."
-            },
-            {
-                id: "c8",
-                nameKr: "매지컬 리본 골드",
-                nameJa: "マジカルリボンゴールド",
-                source: "프리마지",
-                color: "골드",
-                designGroup: "magical_ribbon",
-                imageUrl: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&auto=format&fit=crop&q=80",
-                description: "프리마지 연동 스페셜 에디션으로 수놓아진 화려한 금빛 리본 드레스."
-            }
-        ];
+    function saveCodyData() {
+      localStorage.setItem('aipri_cody_list', JSON.stringify(codyList));
+    }
 
-        // Active State Tracking
-        let activeCategory = "전체";
-        let activeColor = null;
+    // RENDER UI FILTERS
+    function renderFilters() {
+      // Color Swatches
+      const colorContainer = document.getElementById('colorSwatches');
+      colorContainer.innerHTML = COLORS.map(c => `
+        <button onclick="setColorFilter('${c.id}')"
+          class="px-2.5 py-1 rounded-xl text-xs font-bold transition border ${currentColor === c.id ? 'ring-2 ring-pink-500 scale-105' : 'opacity-80'} ${c.bg} ${c.text}">
+          ${c.name}
+        </button>
+      `).join('');
 
-        // 2. TRANSLATION HELPER ENGINE
-        function translateJaToKr(jaText) {
-            if (!jaText) return "";
-            let translated = jaText;
+      // Main Category Tabs
+      const mainCatContainer = document.getElementById('mainCategoryTabs');
+      mainCatContainer.innerHTML = Object.keys(CATEGORIES).map(catKey => `
+        <button onclick="setMainCategory('${catKey}')"
+          class="px-3.5 py-1.5 rounded-2xl text-xs font-bold transition ${currentMainCat === catKey ? 'bg-pink-500 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-pink-50'}">
+          ${CATEGORIES[catKey]}
+        </button>
+      `).join('');
 
-            // Direct term replace algorithm
-            Object.keys(jaToKrMap).forEach(key => {
-                const regex = new RegExp(key, 'g');
-                translated = translated.replace(regex, jaToKrMap[key] + " ");
-            });
+      // Sub Category Tabs
+      renderSubCategories();
+    }
 
-            // Clean up multiple spaces & trim
-            return translated.replace(/\s+/g, ' ').trim();
+    function renderSubCategories() {
+      const subCatContainer = document.getElementById('subCategoryTabs');
+      if (currentMainCat === 'ALL') {
+        document.getElementById('subCategoryWrapper').classList.add('hidden');
+        return;
+      }
+      document.getElementById('subCategoryWrapper').classList.remove('hidden');
+
+      const subs = SUB_CATEGORIES[currentMainCat] || ['전체'];
+      subCatContainer.innerHTML = subs.map(sub => `
+        <button onclick="setSubCategory('${sub}')"
+          class="px-3 py-1 rounded-xl text-xs font-bold transition ${currentSubCat === sub ? 'bg-purple-500 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-purple-50'}">
+          ${sub}
+        </button>
+      `).join('');
+    }
+
+    function setMainCategory(catKey) {
+      currentMainCat = catKey;
+      currentSubCat = '전체';
+      renderFilters();
+      applyFilters();
+    }
+
+    function setSubCategory(sub) {
+      currentSubCat = sub;
+      renderFilters();
+      applyFilters();
+    }
+
+    function setColorFilter(colorId) {
+      currentColor = colorId;
+      renderFilters();
+      applyFilters();
+    }
+
+    // FILTER & SEARCH ENGINE
+    function applyFilters() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      let filtered = codyList.filter(item => {
+        // Main Category Filter
+        if (currentMainCat !== 'ALL' && item.mainCat !== currentMainCat) return false;
+        // Sub Category Filter
+        if (currentSubCat !== '전체' && item.subCat !== currentSubCat) return false;
+        // Color Filter
+        if (currentColor !== 'ALL' && item.color !== currentColor) return false;
+        // Text Query
+        if (query) {
+          const nameKr = (item.nameKr || '').toLowerCase();
+          const nameJp = (item.nameJp || '').toLowerCase();
+          const design = (item.designGroup || '').toLowerCase();
+          if (!nameKr.includes(query) && !nameJp.includes(query) && !design.includes(query)) return false;
         }
+        return true;
+      });
 
-        function handleQuickTranslate() {
-            const input = document.getElementById('translatorInput').value;
-            const outputEl = document.getElementById('translatorOutput');
-            if (!input.trim()) {
-                outputEl.textContent = "번역 결과가 여기에 표시됩니다.";
-                return;
-            }
-            outputEl.textContent = translateJaToKr(input);
-        }
-
-        function autoTranslateInForm() {
-            const jaVal = document.getElementById('addJaName').value;
-            document.getElementById('addKrName').value = translateJaToKr(jaVal);
-        }
-
-        // 3. UI INITIALIZATION & RENDER FUNCTIONS
-        window.addEventListener('DOMContentLoaded', () => {
-            initCategoryBadges();
-            initColorSwatches();
-            renderCoords();
-            setupDropzone();
-            lucide.createIcons();
+      // Image Similarity Match Sorting
+      if (searchImgColorVec) {
+        filtered.sort((a, b) => {
+          const distA = a.colorVec ? calcColorDist(searchImgColorVec, a.colorVec) : 99999;
+          const distB = b.colorVec ? calcColorDist(searchImgColorVec, b.colorVec) : 99999;
+          return distA - distB;
         });
+      }
 
-        function initCategoryBadges() {
-            const container = document.getElementById('categoryBadgeContainer');
-            container.innerHTML = SOURCES.map(src => `
-                <button onclick="setCategoryFilter('${src}')" 
-                        id="cat-badge-${src}"
-                        class="px-3 py-1 text-xs font-semibold rounded-xl border transition ${src === activeCategory ? 'bg-pink-500 text-white border-pink-500 shadow-sm' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}">
-                    ${src}
-                </button>
-            `).join('');
-        }
+      renderCodyGrid(filtered);
+    }
 
-        function initColorSwatches() {
-            const container = document.getElementById('colorSwatchContainer');
-            container.innerHTML = COLORS.map(c => `
-                <button onclick="setColorFilter('${c.name}')"
-                        id="color-swatch-${c.name}"
-                        title="${c.name}"
-                        class="w-7 h-7 rounded-full transition transform hover:scale-110 flex items-center justify-center border ${c.border ? 'border-slate-300' : 'border-transparent'} shadow-xs relative"
-                        style="background-color: ${c.hex}">
-                    <span id="check-${c.name}" class="hidden text-white drop-shadow-md text-xs font-bold">✓</span>
-                </button>
-            `).join('');
-        }
+    function calcColorDist(v1, v2) {
+      return Math.sqrt(
+        Math.pow(v1[0] - v2[0], 2) +
+        Math.pow(v1[1] - v2[1], 2) +
+        Math.pow(v1[2] - v2[2], 2)
+      );
+    }
 
-        function renderCoords(list = coordsData) {
-            const grid = document.getElementById('coordGrid');
-            const empty = document.getElementById('emptyState');
-            const countTag = document.getElementById('resultCount');
+    // RENDER CODY CARDS
+    function renderCodyGrid(items) {
+      const grid = document.getElementById('codyGrid');
+      const emptyState = document.getElementById('emptyState');
+      document.getElementById('codyCount').innerText = items.length;
 
-            countTag.textContent = `${list.length}개`;
+      if (items.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
 
-            if (list.length === 0) {
-                grid.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
+      grid.innerHTML = items.map(item => {
+        const colorObj = COLORS.find(c => c.id === item.color) || COLORS[1];
+        const hasQrCount = Object.values(item.qrs || {}).filter(Boolean).length;
 
-            empty.classList.add('hidden');
-            grid.innerHTML = list.map(item => `
-                <div onclick="openDetailModal('${item.id}')" 
-                     class="bg-white rounded-2xl p-3 border border-pink-100 card-shadow hover:shadow-lg transition duration-200 cursor-pointer flex flex-col group transform hover:-translate-y-1">
-                    
-                    <div class="aspect-square bg-slate-50 rounded-xl overflow-hidden mb-2.5 relative border border-slate-100">
-                        <img src="${item.imageUrl}" alt="${item.nameKr}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                        <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/70 text-white backdrop-blur-xs">
-                            ${item.source}
-                        </span>
-                        ${item.matchScore ? `
-                            <span class="absolute bottom-2 right-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-pink-500 text-white shadow-md animate-pulse">
-                                ${item.matchScore}% 일치
-                            </span>
-                        ` : ''}
-                    </div>
-
-                    <div class="space-y-1 flex-1 flex flex-col justify-between">
-                        <div>
-                            <h3 class="font-bold text-xs sm:text-sm text-slate-800 line-clamp-1 group-hover:text-pink-600 transition">
-                                ${item.nameKr}
-                            </h3>
-                            <p class="text-[11px] font-ja text-slate-400 line-clamp-1">
-                                ${item.nameJa}
-                            </p>
-                        </div>
-
-                        <div class="pt-1.5 flex items-center justify-between border-t border-slate-50">
-                            <span class="text-[10px] font-medium text-slate-400">색상</span>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
-                                ${item.color}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            lucide.createIcons();
-        }
-
-        // 4. FILTERING & SEARCH ENGINE
-        function applyFilters() {
-            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
-            const sortBy = document.getElementById('sortBy').value;
-
-            let filtered = coordsData.filter(item => {
-                const matchCategory = (activeCategory === "전체") || (item.source === activeCategory);
-                const matchColor = !activeColor || (item.color === activeColor);
-                const matchSearch = !searchVal || 
-                                    item.nameKr.toLowerCase().includes(searchVal) || 
-                                    item.nameJa.toLowerCase().includes(searchVal);
-                return matchCategory && matchColor && matchSearch;
-            });
-
-            // Sorting logic
-            if (sortBy === 'name') {
-                filtered.sort((a, b) => a.nameKr.localeCompare(b.nameKr));
-            } else if (sortBy === 'source') {
-                filtered.sort((a, b) => a.source.localeCompare(b.source));
-            }
-
-            renderCoords(filtered);
-        }
-
-        function setCategoryFilter(category) {
-            activeCategory = category;
-            initCategoryBadges();
-            applyFilters();
-        }
-
-        function resetCategoryFilter() {
-            setCategoryFilter("전체");
-        }
-
-        function setColorFilter(colorName) {
-            if (activeColor === colorName) {
-                activeColor = null; // Toggle off
-            } else {
-                activeColor = colorName;
-            }
-
-            // Update swatch checkmarks UI
-            COLORS.forEach(c => {
-                const check = document.getElementById(`check-${c.name}`);
-                if (check) {
-                    if (c.name === activeColor) check.classList.remove('hidden');
-                    else check.classList.add('hidden');
+        return `
+          <div onclick="openDetailModal('${item.id}')"
+            class="glass-card rounded-2xl overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between border border-pink-100">
+            <div>
+              <div class="h-44 bg-slate-50 relative flex items-center justify-center p-2 overflow-hidden">
+                ${item.mainImg 
+                  ? `<img src="${item.mainImg}" class="w-full h-full object-contain">`
+                  : `<i data-lucide="sparkles" class="w-10 h-10 text-pink-200"></i>`
                 }
-            });
+                <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${colorObj.bg} ${colorObj.text} shadow-sm">
+                  ${colorObj.name}
+                </span>
+                ${hasQrCount > 0 ? `
+                  <span class="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-purple-600 text-white flex items-center gap-1 shadow-sm">
+                    <i data-lucide="qr-code" class="w-3 h-3"></i> ${hasQrCount}
+                  </span>
+                ` : ''}
+              </div>
+              
+              <div class="p-3">
+                <div class="text-[10px] font-bold text-purple-600">
+                  ${CATEGORIES[item.mainCat] || ''} • ${item.subCat || ''}
+                </div>
+                <h4 class="text-xs font-black text-slate-800 truncate">${item.nameKr}</h4>
+                <p class="text-[10px] text-slate-400 truncate jp-font">${item.nameJp}</p>
+              </div>
+            </div>
 
-            applyFilters();
-        }
+            ${item.designGroup ? `
+              <div class="px-3 pb-3">
+                <span class="inline-block text-[9px] bg-pink-50 text-pink-600 px-2 py-0.5 rounded-md font-semibold truncate w-full">
+                  라인: ${item.designGroup}
+                </span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
 
-        function resetColorFilter() {
-            activeColor = null;
-            COLORS.forEach(c => {
-                const check = document.getElementById(`check-${c.name}`);
-                if (check) check.classList.add('hidden');
-            });
-            applyFilters();
-        }
+      lucide.createIcons();
+    }
 
-        // 5. IMAGE MATCHING SIMULATOR ENGINE (Visual Analysis)
-        function setupDropzone() {
-            const dropzone = document.getElementById('dropzone');
+    // IMAGE FEATURE EXTRACTION & SEARCH
+    function handleSearchImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
 
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropzone.classList.add('bg-purple-100/50');
-                }, false);
-            });
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const img = new Image();
+        img.onload = () => {
+          searchImgColorVec = extractAverageRGB(img);
+          document.getElementById('previewSearchImg').src = evt.target.result;
+          document.getElementById('previewSearchImg').classList.remove('hidden');
+          document.getElementById('dropPrompt').classList.add('hidden');
+          document.getElementById('clearSearchImgBtn').classList.remove('hidden');
+          document.getElementById('matchStatus').classList.remove('hidden');
+          applyFilters();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
-                    e.preventDefault();
-                    dropzone.classList.remove('bg-purple-100/50');
-                }, false);
-            });
+    function clearSearchImage() {
+      searchImgColorVec = null;
+      document.getElementById('searchImgInput').value = '';
+      document.getElementById('previewSearchImg').classList.add('hidden');
+      document.getElementById('dropPrompt').classList.remove('hidden');
+      document.getElementById('clearSearchImgBtn').classList.add('hidden');
+      document.getElementById('matchStatus').classList.add('hidden');
+      applyFilters();
+    }
 
-            dropzone.addEventListener('drop', (e) => {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                if (files.length > 0) handleFile(files[0]);
-            });
+    function extractAverageRGB(img) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = 50;
+      canvas.height = 50;
+      ctx.drawImage(img, 0, 0, 50, 50);
+      const data = ctx.getImageData(0, 0, 50, 50).data;
 
-            dropzone.addEventListener('click', () => {
-                document.getElementById('imageInput').click();
-            });
-        }
+      let r = 0, g = 0, b = 0, count = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        r += data[i];
+        g += data[i+1];
+        b += data[i+2];
+        count++;
+      }
+      return [Math.round(r/count), Math.round(g/count), Math.round(b/count)];
+    }
 
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            if (file) handleFile(file);
-        }
+    // TRANSLATOR
+    function runQuickTranslate() {
+      const jp = document.getElementById('jpTranslateInput').value;
+      const res = translateJpToKr(jp);
+      document.getElementById('translateResult').innerText = res ? `번역 결과: ${res}` : '일본어를 입력해 주세요.';
+    }
 
-        function handleFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('uploadedPreview').src = e.target.result;
-                document.getElementById('uploadPrompt').classList.add('hidden');
-                document.getElementById('uploadPreviewContainer').classList.remove('hidden');
+    function autoTranslateName() {
+      const jp = document.getElementById('nameJp').value;
+      if (jp && !document.getElementById('nameKr').value) {
+        document.getElementById('nameKr').value = translateJpToKr(jp);
+      }
+    }
 
-                runImageSimilarityMatch();
-            };
-            reader.readAsDataURL(file);
-        }
+    // MODAL ADD / EDIT CODY
+    function openAddModal(editId = null) {
+      tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
+      tempMainImg = null;
 
-        function clearImageUpload(e) {
-            e.stopPropagation();
-            document.getElementById('imageInput').value = '';
-            document.getElementById('uploadPrompt').classList.remove('hidden');
-            document.getElementById('uploadPreviewContainer').classList.add('hidden');
-            document.getElementById('matchStatus').classList.add('hidden');
+      // Dropdown Populators
+      const mainSelect = document.getElementById('mainCatSelect');
+      mainSelect.innerHTML = Object.keys(CATEGORIES)
+        .filter(k => k !== 'ALL')
+        .map(k => `<option value="${k}">${CATEGORIES[k]}</option>`).join('');
 
-            // Clear match scores and reset list
-            coordsData.forEach(item => delete item.matchScore);
-            applyFilters();
-        }
+      const colorSelect = document.getElementById('colorSelect');
+      colorSelect.innerHTML = COLORS
+        .filter(c => c.id !== 'ALL')
+        .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-        function runImageSimilarityMatch() {
-            const statusBox = document.getElementById('matchStatus');
-            const statusText = document.getElementById('statusText');
-            const scoreTag = document.getElementById('matchScoreTag');
+      updateSubCatDropdown();
 
-            statusBox.classList.remove('hidden');
-            statusText.textContent = "코디 패턴 및 이미지 특징 벡터 계산 중...";
-            scoreTag.textContent = "";
+      if (editId) {
+        const item = codyList.find(c => c.id === editId);
+        if (item) {
+          document.getElementById('modalTitle').innerText = '코디 정보 수정';
+          document.getElementById('editId').value = item.id;
+          document.getElementById('nameJp').value = item.nameJp || '';
+          document.getElementById('nameKr').value = item.nameKr || '';
+          document.getElementById('mainCatSelect').value = item.mainCat;
+          updateSubCatDropdown();
+          document.getElementById('subCatSelect').value = item.subCat;
+          document.getElementById('colorSelect').value = item.color;
+          document.getElementById('designGroup').value = item.designGroup || '';
 
-            setTimeout(() => {
-                statusText.textContent = "데이터베이스 매칭 완료!";
-                
-                // Simulate similarity scoring logic
-                const scoredList = coordsData.map((item, idx) => {
-                    // Produce realistic match scores (e.g., 98%, 85%, etc.)
-                    let score = 95 - (idx * 11) + Math.floor(Math.random() * 5);
-                    if (score < 40) score = Math.floor(Math.random() * 30) + 10;
-                    return { ...item, matchScore: score };
-                });
+          tempMainImg = item.mainImg;
+          if (tempMainImg) {
+            document.getElementById('codyImgPreview').src = tempMainImg;
+            document.getElementById('codyImgPreview').classList.remove('hidden');
+          }
 
-                scoredList.sort((a, b) => b.matchScore - a.matchScore);
-                
-                scoreTag.textContent = `최고 ${scoredList[0].matchScore}% 매칭`;
-                renderCoords(scoredList);
-            }, 800);
-        }
-
-        // 6. DETAIL MODAL & SIMILAR DESIGNS LOOKUP
-        function openDetailModal(id) {
-            const item = coordsData.find(c => c.id === id);
-            if (!item) return;
-
-            document.getElementById('modalKrName').textContent = item.nameKr;
-            document.getElementById('modalJaName').textContent = item.nameJa;
-            document.getElementById('modalSourceBadge').textContent = item.source;
-            document.getElementById('modalImage').src = item.imageUrl;
-            document.getElementById('modalDesignGroup').textContent = item.designGroup || "기본 디자인";
-            document.getElementById('modalDescription').textContent = item.description || "등록된 상세 정보가 없습니다.";
-            
-            document.getElementById('modalColorText').textContent = item.color;
-            const colorObj = COLORS.find(c => c.name === item.color);
-            document.getElementById('modalColorDot').style.backgroundColor = colorObj ? colorObj.hex : '#94A3B8';
-
-            // Find Similar Designs (Same design group)
-            const similarCoords = coordsData.filter(c => c.designGroup === item.designGroup && c.id !== item.id);
-            const similarListContainer = document.getElementById('similarList');
-
-            if (similarCoords.length === 0) {
-                similarListContainer.innerHTML = `
-                    <div class="col-span-full py-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl">
-                        등록된 유사 색상/디자인 파생 코디가 없습니다.
-                    </div>
-                `;
+          tempQrStore = { ...item.qrs };
+          ['all', 'acc', 'top', 'bottom', 'shoes'].forEach(key => {
+            const prev = document.getElementById(`qr_${key}_preview`);
+            if (tempQrStore[key]) {
+              prev.src = tempQrStore[key];
+              prev.classList.remove('hidden');
             } else {
-                similarListContainer.innerHTML = similarCoords.map(sim => `
-                    <div onclick="openDetailModal('${sim.id}')" class="bg-pink-50/50 hover:bg-pink-100/60 p-2 rounded-xl border border-pink-100 cursor-pointer transition text-center space-y-1 group">
-                        <img src="${sim.imageUrl}" class="w-full h-16 object-cover rounded-lg group-hover:scale-105 transition">
-                        <p class="text-[11px] font-bold text-slate-700 line-clamp-1">${sim.nameKr}</p>
-                        <span class="inline-block text-[9px] px-1.5 py-0.2 bg-white rounded text-pink-600 font-semibold">${sim.color}</span>
-                    </div>
-                `).join('');
+              prev.classList.add('hidden');
             }
-
-            openModal('detailModal');
+          });
         }
+      } else {
+        document.getElementById('modalTitle').innerText = '새 코디 등록';
+        document.getElementById('codyForm').reset();
+        document.getElementById('editId').value = '';
+        document.getElementById('codyImgPreview').classList.add('hidden');
+        ['all', 'acc', 'top', 'bottom', 'shoes'].forEach(key => {
+          document.getElementById(`qr_${key}_preview`).classList.add('hidden');
+        });
+      }
 
-        // 7. MODAL HELPERS & ADD NEW COORD
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.remove('hidden');
+      document.getElementById('addModal').classList.remove('hidden');
+    }
+
+    function closeAddModal() {
+      document.getElementById('addModal').classList.add('hidden');
+    }
+
+    function updateSubCatDropdown() {
+      const mainVal = document.getElementById('mainCatSelect').value;
+      const subSelect = document.getElementById('subCatSelect');
+      const subs = (SUB_CATEGORIES[mainVal] || []).filter(s => s !== '전체');
+      subSelect.innerHTML = subs.map(s => `<option value="${s}">${s}</option>`).join('');
+    }
+
+    function previewUploadImg(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        tempMainImg = evt.target.result;
+        document.getElementById('codyImgPreview').src = tempMainImg;
+        document.getElementById('codyImgPreview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleQrUpload(e, key) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        tempQrStore[key] = evt.target.result;
+        const prev = document.getElementById(`qr_${key}_preview`);
+        prev.src = evt.target.result;
+        prev.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveCody(e) {
+      e.preventDefault();
+
+      const editId = document.getElementById('editId').value;
+      const nameJp = document.getElementById('nameJp').value;
+      const nameKr = document.getElementById('nameKr').value;
+      const mainCat = document.getElementById('mainCatSelect').value;
+      const subCat = document.getElementById('subCatSelect').value;
+      const color = document.getElementById('colorSelect').value;
+      const designGroup = document.getElementById('designGroup').value;
+
+      let colorVec = [200, 200, 200];
+      if (tempMainImg) {
+        const img = new Image();
+        img.src = tempMainImg;
+        colorVec = extractAverageRGB(img);
+      }
+
+      if (editId) {
+        const idx = codyList.findIndex(c => c.id === editId);
+        if (idx !== -1) {
+          codyList[idx] = {
+            ...codyList[idx],
+            nameJp, nameKr, mainCat, subCat, color, designGroup,
+            mainImg: tempMainImg || codyList[idx].mainImg,
+            qrs: { ...tempQrStore },
+            colorVec
+          };
         }
+      } else {
+        const newCody = {
+          id: 'cody_' + Date.now(),
+          nameJp, nameKr, mainCat, subCat, color, designGroup,
+          mainImg: tempMainImg,
+          qrs: { ...tempQrStore },
+          colorVec
+        };
+        codyList.unshift(newCody);
+      }
 
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
+      saveCodyData();
+      applyFilters();
+      closeAddModal();
+    }
 
-        function handleAddCoord(e) {
-            e.preventDefault();
-            const nameJa = document.getElementById('addJaName').value;
-            const nameKr = document.getElementById('addKrName').value;
-            const source = document.getElementById('addSource').value;
-            const color = document.getElementById('addColor').value;
-            const designGroup = document.getElementById('addDesignGroup').value || "custom_group";
-            const imageUrlInput = document.getElementById('addImageUrl').value;
+    // DETAIL MODAL VIEW & RECOLOR MATCHING
+    function openDetailModal(id) {
+      const item = codyList.find(c => c.id === id);
+      if (!item) return;
 
-            const newCoord = {
-                id: "custom_" + Date.now(),
-                nameKr: nameKr,
-                nameJa: nameJa,
-                source: source,
-                color: color,
-                designGroup: designGroup,
-                imageUrl: imageUrlInput || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
-                description: "사용자가 새로 추가한 아이프리 코디 정보입니다."
-            };
+      const colorObj = COLORS.find(c => c.id === item.color) || COLORS[1];
 
-            coordsData.unshift(newCoord);
+      // Find Recolor Family Items
+      const recolorItems = item.designGroup 
+        ? codyList.filter(c => c.designGroup === item.designGroup && c.id !== item.id)
+        : [];
+
+      const content = document.getElementById('detailContent');
+      content.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold px-3 py-1 rounded-full ${colorObj.bg} ${colorObj.text}">
+              ${CATEGORIES[item.mainCat]} • ${item.subCat} (${colorObj.name})
+            </span>
+            <div class="flex gap-2">
+              <button onclick="openAddModal('${item.id}'); closeDetailModal();" class="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-xl hover:bg-purple-100">
+                수정
+              </button>
+              <button onclick="deleteCody('${item.id}')" class="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-xl hover:bg-red-100">
+                삭제
+              </button>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <h2 class="text-xl font-black text-slate-800">${item.nameKr}</h2>
+            <p class="text-xs text-slate-400 jp-font">${item.nameJp}</p>
+          </div>
+
+          <div class="h-64 bg-slate-50 rounded-2xl p-2 flex items-center justify-center overflow-hidden border">
+            ${item.mainImg 
+              ? `<img src="${item.mainImg}" class="h-full w-full object-contain">`
+              : `<p class="text-xs text-slate-400">등록된 코디 대표 사진이 없습니다.</p>`
+            }
+          </div>
+
+          <!-- QR CODES DISPLAY (5 TABS: 전체, 악세, 상의, 하의, 슈즈) -->
+          <div class="border-t border-pink-100 pt-3">
+            <h4 class="text-xs font-black text-slate-700 mb-2 flex items-center gap-1">
+              <i data-lucide="qr-code" class="w-4 h-4 text-pink-500"></i> 부위별 QR 코드 스캔
+            </h4>
+            
+            <div class="grid grid-cols-5 gap-1.5 text-center">
+              ${renderQrTabItem('전체', item.qrs?.all)}
+              ${renderQrTabItem('악세', item.qrs?.acc)}
+              ${renderQrTabItem('상의', item.qrs?.top)}
+              ${renderQrTabItem('하의', item.qrs?.bottom)}
+              ${renderQrTabItem('슈즈', item.qrs?.shoes)}
+            </div>
+          </div>
+
+          <!-- RECOLOR FAMILIES -->
+          ${recolorItems.length > 0 ? `
+            <div class="border-t border-pink-100 pt-3">
+              <h4 class="text-xs font-black text-purple-600 mb-2">
+                유사 디자인 / 리컬러 코디 (${recolorItems.length})
+              </h4>
+              <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-2">
+                ${recolorItems.map(r => `
+                  <div onclick="openDetailModal('${r.id}')" class="flex-shrink-0 w-24 bg-slate-50 rounded-xl p-1.5 border text-center cursor-pointer hover:border-pink-300">
+                    <img src="${r.mainImg || ''}" class="w-20 h-20 object-contain mx-auto mb-1 rounded">
+                    <p class="text-[10px] font-bold text-slate-700 truncate">${r.nameKr}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function renderQrTabItem(label, qrSrc) {
+      if (!qrSrc) {
+        return `
+          <div class="bg-slate-100 rounded-xl p-2 text-center opacity-40">
+            <span class="text-[10px] font-bold text-slate-500 block">${label}</span>
+            <span class="text-[9px] text-slate-400">없음</span>
+          </div>
+        `;
+      }
+      return `
+        <div onclick="showQrEnlarged('${qrSrc}', '${label}')" class="bg-pink-50 border border-pink-200 rounded-xl p-1.5 text-center cursor-pointer hover:bg-pink-100 transition">
+          <span class="text-[10px] font-bold text-pink-600 block mb-1">${label}</span>
+          <img src="${qrSrc}" class="w-10 h-10 object-cover mx-auto rounded">
+        </div>
+      `;
+    }
+
+    function showQrEnlarged(src, label) {
+      const w = window.open("");
+      w.document.write(`
+        <body style="margin:0; background:#000; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; color:#fff; font-family:sans-serif;">
+          <h3 style="margin-bottom:10px;">${label} QR 코드</h3>
+          <img src="${src}" style="max-width:90%; max-height:80vh; border-radius:12px; background:#fff; padding:10px;">
+        </body>
+      `);
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    function deleteCody(id) {
+      if (confirm('이 코디를 정말로 삭제하시겠습니까?')) {
+        codyList = codyList.filter(c => c.id !== id);
+        saveCodyData();
+        applyFilters();
+        closeDetailModal();
+      }
+    }
+
+    // JSON EXPORT & IMPORT
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(codyList));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `aipri_cody_backup_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          if (Array.isArray(imported)) {
+            codyList = imported;
+            saveCodyData();
             applyFilters();
-            closeModal('addModal');
-            document.getElementById('addCoordForm').reset();
+            alert('데이터를 성공적으로 불러왔습니다!');
+          }
+        } catch (err) {
+          alert('올바르지 않은 JSON 파일 형식입니다.');
         }
-    </script>
+      };
+      reader.readAsText(file);
+    }
+  </script>
 </body>
 </html>
