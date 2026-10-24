@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이프리 코디 도감 & 이미지 검색 (AiPri Coord Finder)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Font Awesome Icons for accent details -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Noto Sans KR, Kosugi Maru -->
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aipri: {
+                            pink: '#FF70B8',
+                            lightpink: '#FFF0F5',
+                            purple: '#A855F7',
+                            softpurple: '#F3E8FF',
+                            blue: '#3B82F6',
+                            mint: '#10B981',
+                            yellow: '#F59E0B',
+                            gold: '#ECC94B',
+                            dark: '#2D3748'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        ja: ['Kosugi Maru', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FAF5FF;
+            background-image: radial-gradient(#F3E8FF 1.5px, transparent 1.5px), radial-gradient(#F3E8FF 1.5px, #FAF5FF 1.5px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(255, 112, 184, 0.15), 0 8px 10px -6px rgba(168, 85, 247, 0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F3E8FF;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #FF70B8;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-pink-200 shadow-sm">
+        <div class="max-w-7xl mx-mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-400 to-purple-500 flex items-center justify-center text-white shadow-md transform rotate-3">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-500 bg-clip-text text-transparent leading-tight">
+                        아이프리 코디 도감
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium">AiPri Coord Finder & Dictionary</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="openModal('addModal')" class="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold rounded-xl text-sm shadow-sm transition hover:shadow-md transform hover:-translate-y-0.5">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>코디 등록</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Area: Image Matcher & Search Tools -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Photo Upload / Similarity Search Box (Left Column: 5/12) -->
+            <div class="lg:col-span-5 bg-white rounded-3xl p-5 border border-pink-100 card-shadow flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="font-bold text-slate-800 flex items-center space-x-2">
+                        <i data-lucide="camera" class="w-5 h-5 text-pink-500"></i>
+                        <span>사진으로 유사 코디 찾기</span>
+                    </h2>
+                    <span class="text-xs font-semibold px-2.5 py-1 bg-pink-50 text-pink-600 rounded-full border border-pink-200">
+                        유사도 AI 매칭
+                    </span>
+                </div>
+
+                <!-- Dropzone Area -->
+                <div id="dropzone" class="border-2 border-dashed border-pink-300 hover:border-purple-400 bg-pink-50/40 hover:bg-purple-50/30 rounded-2xl p-4 text-center cursor-pointer transition flex-1 flex flex-col justify-center items-center relative overflow-hidden group">
+                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                    
+                    <div id="uploadPrompt" class="space-y-2 py-4">
+                        <div class="w-14 h-14 mx-auto bg-pink-100 group-hover:scale-110 text-pink-500 rounded-2xl flex items-center justify-center transition duration-300">
+                            <i data-lucide="image-plus" class="w-7 h-7"></i>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-700">코디 사진이나 카드를 얹어주세요</p>
+                        <p class="text-xs text-slate-400">클릭하거나 이미지를 끌어다 놓기</p>
+                    </div>
+
+                    <!-- Image Preview Container -->
+                    <div id="uploadPreviewContainer" class="hidden w-full h-full flex flex-col items-center justify-center relative">
+                        <img id="uploadedPreview" src="" alt="Upload Preview" class="max-h-48 object-contain rounded-xl border border-slate-200 shadow-sm">
+                        <button onclick="clearImageUpload(event)" class="absolute top-1 right-1 bg-slate-900/70 hover:bg-slate-900 text-white rounded-full p-1.5 transition">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Color Extraction & Scan Status -->
+                <div id="matchStatus" class="hidden mt-3 p-3 bg-purple-50 rounded-xl border border-purple-100 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="animate-spin text-purple-600"><i data-lucide="loader-2" class="w-4 h-4"></i></div>
+                        <span class="text-xs font-medium text-purple-700" id="statusText">색상 및 특징 벡터 분석 중...</span>
+                    </div>
+                    <span id="matchScoreTag" class="text-xs font-bold text-pink-600 bg-pink-100 px-2 py-0.5 rounded-full"></span>
+                </div>
+            </div>
+
+            <!-- Japanese-Korean Translator Tool & Search Filter Bar (Right Column: 7/12) -->
+            <div class="lg:col-span-7 space-y-4">
+                
+                <!-- Quick Japanese -> Korean Translation Box -->
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="languages" class="w-5 h-5 text-pink-300"></i>
+                            <h3 class="font-bold text-sm tracking-wide">일본어 코디명 스마트 한국어 번역기</h3>
+                        </div>
+                        <span class="text-[11px] bg-white/20 text-purple-100 px-2 py-0.5 rounded-full font-medium">자연스러운 번역 적용</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-purple-200 mb-1">일본어 원문 입력</label>
+                            <input type="text" id="translatorInput" placeholder="例: フラワーカフェピンク" 
+                                   oninput="handleQuickTranslate()"
+                                   class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-300 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 font-ja">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-purple-200 mb-1">다듬어진 한국어 명칭</label>
+                            <div id="translatorOutput" class="w-full px-3 py-2 bg-white/20 border border-white/30 rounded-xl text-white font-bold text-sm min-h-[38px] flex items-center">
+                                번역 결과가 여기에 표시됩니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text Search & Filters Bar -->
+                <div class="bg-white rounded-3xl p-4 border border-pink-100 card-shadow space-y-3">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <i data-lucide="search" class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="코디 이름 검색 (한국어 / 日本語)..." 
+                               class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition">
+                    </div>
+
+                    <!-- Category Source Badges (소속 구분) -->
+                    <div>
+                        <div class="text-xs font-bold text-slate-500 mb-1.5 flex items-center justify-between">
+                            <span>소속 구분 (시리즈/구분)</span>
+                            <button onclick="resetCategoryFilter()" class="text-[11px] text-pink-500 hover:underline">전체보기</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5" id="categoryBadgeContainer">
+                            <!-- Dynamically generated badges -->
+                        </div>
+                    </div>
+
+                    <!-- Representative Color Swatches (대표색 필터) -->
+                    <div>
+                        <div class="text-xs font-bold text-slate-500 mb-1.5 flex items-center justify-between">
+                            <span>대표색 선택</span>
+                            <button onclick="resetColorFilter()" class="text-[11px] text-pink-500 hover:underline">색상 초기화</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 items-center" id="colorSwatchContainer">
+                            <!-- Dynamically generated color swatches -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Main Display: Coordinates Grid -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <h2 class="text-lg font-bold text-slate-800">등록된 코디 목록</h2>
+                    <span id="resultCount" class="bg-pink-100 text-pink-700 text-xs font-bold px-2.5 py-0.5 rounded-full">0개</span>
+                </div>
+                <!-- Sort option -->
+                <select id="sortBy" onchange="applyFilters()" class="text-xs border border-slate-200 bg-white rounded-xl px-3 py-1.5 text-slate-600 focus:outline-none focus:ring-2 focus:ring-pink-300">
+                    <option value="default">등록순</option>
+                    <option value="name">이름순</option>
+                    <option value="source">소속별</option>
+                </select>
+            </div>
+
+            <!-- Coord Cards Grid -->
+            <div id="coordGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Cards render dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden py-16 text-center bg-white rounded-3xl border border-dashed border-pink-200 card-shadow space-y-3">
+                <div class="w-16 h-16 mx-auto bg-pink-50 rounded-full flex items-center justify-center text-pink-400">
+                    <i data-lucide="sparkles" class="w-8 h-8"></i>
+                </div>
+                <h3 class="font-bold text-slate-700">조건에 맞는 코디가 없습니다.</h3>
+                <p class="text-xs text-slate-400">검색어나 필터 조건을 변경하거나 새 코디를 직접 등록해 보세요!</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-pink-100 py-6 mt-12 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 space-y-1">
+            <p class="font-medium text-slate-500">아이프리(Secret AiPri) 코디 데이터베이스 & 검색 도구</p>
+            <p>© 2026 AiPri Fan Project. Designed for easy coordination matching.</p>
+        </div>
+    </footer>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-pink-100 flex flex-col">
+            <!-- Modal Header -->
+            <div class="p-4 sm:p-6 border-b border-pink-100 flex items-start justify-between bg-gradient-to-r from-pink-50 via-purple-50 to-white sticky top-0 z-10">
+                <div class="space-y-1">
+                    <span id="modalSourceBadge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold text-white bg-pink-500">
+                        소속
+                    </span>
+                    <h3 id="modalKrName" class="text-xl font-black text-slate-800">코디 한국어 이름</h3>
+                    <p id="modalJaName" class="text-sm font-ja text-slate-500">日本語コーディネート名</p>
+                </div>
+                <button onclick="closeModal('detailModal')" class="text-slate-400 hover:text-slate-600 bg-white rounded-full p-2 border border-slate-200 hover:bg-slate-50 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-4 sm:p-6 space-y-6">
+                <!-- Preview & Info Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                    <div class="aspect-square bg-slate-50 rounded-2xl border border-pink-100 flex items-center justify-center p-4 relative overflow-hidden shadow-inner">
+                        <img id="modalImage" src="" alt="Coord Image" class="max-h-full max-w-full object-contain drop-shadow-md">
+                        <div id="modalColorBadge" class="absolute bottom-3 right-3 flex items-center space-x-1 bg-white/90 px-2.5 py-1 rounded-full border border-slate-200 text-xs font-bold shadow-sm">
+                            <span id="modalColorDot" class="w-3 h-3 rounded-full inline-block"></span>
+                            <span id="modalColorText" class="text-slate-700">색상</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="p-3.5 bg-purple-50/60 rounded-2xl border border-purple-100 space-y-1">
+                            <span class="text-xs font-bold text-purple-600 block">디자인 그룹 ID</span>
+                            <p id="modalDesignGroup" class="text-sm font-medium text-slate-700">기본 디자인</p>
+                        </div>
+
+                        <div class="p-3.5 bg-pink-50/60 rounded-2xl border border-pink-100 space-y-1">
+                            <span class="text-xs font-bold text-pink-600 block">특징 및 설명</span>
+                            <p id="modalDescription" class="text-xs text-slate-600 leading-relaxed">
+                                상세 설명 정보가 등록되어 있습니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Similar Designs Section (비슷한 디자인 / 리컬러 목록) -->
+                <div class="border-t border-slate-100 pt-5 space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="layers" class="w-5 h-5 text-purple-500"></i>
+                        <h4 class="font-bold text-slate-800 text-sm">유사한 디자인 / 리컬러 버전</h4>
+                        <span class="text-xs text-slate-400 font-normal">(같은 디자인 틀의 다른 색상)</span>
+                    </div>
+
+                    <div id="similarList" class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                        <!-- Similar coords rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Coord Modal -->
+    <div id="addModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-pink-100">
+            <div class="p-5 border-b border-pink-100 flex items-center justify-between bg-pink-50/50">
+                <h3 class="font-bold text-slate-800 flex items-center space-x-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-pink-500"></i>
+                    <span>새 코디 등록하기</span>
+                </h3>
+                <button onclick="closeModal('addModal')" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="addCoordForm" onsubmit="handleAddCoord(event)" class="p-5 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">일본어 명칭 (日本語)</label>
+                    <input type="text" id="addJaName" required placeholder="例: フラワーカフェピンク" 
+                           oninput="autoTranslateInForm()"
+                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-ja focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">한국어 명칭 (자동 번역 추천)</label>
+                    <input type="text" id="addKrName" required placeholder="예: 플라워 카페 핑크" 
+                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">소속 (카테고리)</label>
+                        <select id="addSource" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                            <option value="히미프리">히미프리</option>
+                            <option value="오네프리">오네프리</option>
+                            <option value="프리마지">프리마지</option>
+                            <option value="구미">구미</option>
+                            <option value="스페셜">스페셜</option>
+                            <option value="밀피">밀피</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">대표 색상</label>
+                        <select id="addColor" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                            <option value="핑크">핑크</option>
+                            <option value="블루">블루</option>
+                            <option value="옐로우">옐로우</option>
+                            <option value="퍼플">퍼플</option>
+                            <option value="그린">그린</option>
+                            <option value="화이트">화이트</option>
+                            <option value="블랙">블랙</option>
+                            <option value="레드">레드</option>
+                            <option value="골드">골드</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">유사 디자인 그룹 식별키 (비슷한 디자인끼리 같게 입력)</label>
+                    <input type="text" id="addDesignGroup" placeholder="예: flower_cafe" 
+                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">이미지 URL (선택, 입력 안할 시 기본 생성)</label>
+                    <input type="url" id="addImageUrl" placeholder="https://..." 
+                           class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-pink-400 focus:outline-none">
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal('addModal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">취소</button>
+                    <button type="submit" class="px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-xl text-sm font-bold shadow-sm">등록 완료</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Script Logic -->
+    <script>
+        // 1. DATA DICTIONARIES & DATABASE
+        
+        // Japanese -> Natural Korean translation map dictionary for AiPri terminology
+        const jaToKrMap = {
+            "フラワー": "플라워", "カフェ": "카페", "ピンク": "핑크", "ブルー": "블루", "イエロー": "옐로우",
+            "パープル": "퍼플", "グリーン": "그린", "ホワイト": "화이트", "ブラック": "블랙", "レッド": "레드",
+            "ゴールド": "골드", "スター": "스타", "ハート": "하트", "リボン": "리본", "プリンセス": "프린세스",
+            "チェック": "체크", "レース": "레이스", "ドレス": "드레스", "スーツ": "수트", "スタイル": "스타일",
+            "ひみつ": "비밀의", "オーロラ": "오로라", "ムーン": "문", "サン": "썬", "スウィート": "스위트",
+            "ミント": "민트", "ベリー": "베리", "シフォン": "시폰", "ゴシック": "고딕", "フェザー": "페더",
+            "マジカル": "매지컬", "アイプリ": "아이프리", "バズリウム": "버즈리움", "ミルフィーユ": "밀피유"
+        };
+
+        const SOURCES = ["전체", "히미프리", "오네프리", "프리마지", "구미", "스페셜", "밀피"];
+
+        const COLORS = [
+            { name: "핑크", hex: "#FF70B8" },
+            { name: "블루", hex: "#3B82F6" },
+            { name: "옐로우", hex: "#F59E0B" },
+            { name: "퍼플", hex: "#A855F7" },
+            { name: "그린", hex: "#10B981" },
+            { name: "화이트", hex: "#F8FAFC", border: true },
+            { name: "블랙", hex: "#1E293B" },
+            { name: "레드", hex: "#EF4444" },
+            { name: "골드", hex: "#EAB308" }
+        ];
+
+        // Mock Database of AiPri / PriMagi coords
+        let coordsData = [
+            {
+                id: "c1",
+                nameKr: "플라워 카페 핑크",
+                nameJa: "フラワーカフェピンク",
+                source: "히미프리",
+                color: "핑크",
+                designGroup: "flower_cafe",
+                imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&auto=format&fit=crop&q=80",
+                description: "화사한 분홍색 꽃잎 장식이 돋보이는 대표적인 카와이 스타일 카페 코디입니다."
+            },
+            {
+                id: "c2",
+                nameKr: "플라워 카페 민트",
+                nameJa: "フラワーカフェミント",
+                source: "히미프리",
+                color: "그린",
+                designGroup: "flower_cafe",
+                imageUrl: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&auto=format&fit=crop&q=80",
+                description: "플라워 카페의 상큼한 민트 컬러 리컬러 버전입니다."
+            },
+            {
+                id: "c3",
+                nameKr: "플라워 카페 옐로우",
+                nameJa: "フラワーカフェイエロー",
+                source: "구미",
+                color: "옐로우",
+                designGroup: "flower_cafe",
+                imageUrl: "https://images.unsplash.com/photo-1550614000-4895a10e1bfd?w=400&auto=format&fit=crop&q=80",
+                description: "구미 구매 특전으로 제공되는 상큼한 노란색 플라워 카페 변형 코디."
+            },
+            {
+                id: "c4",
+                nameKr: "스타 체크 블루",
+                nameJa: "スターチェックブルー",
+                source: "오네프리",
+                color: "블루",
+                designGroup: "star_check",
+                imageUrl: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&auto=format&fit=crop&q=80",
+                description: "청량한 푸른 체크무늬와 별 모티브 가슴 장식이 매력적인 라이브 스티치 코디."
+            },
+            {
+                id: "c5",
+                nameKr: "스타 체크 퍼플",
+                nameJa: "スターチェックパープル",
+                source: "오네프리",
+                color: "퍼플",
+                designGroup: "star_check",
+                imageUrl: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400&auto=format&fit=crop&q=80",
+                description: "스타 체크의 신비로운 보라색 색상 차이 버전 코디."
+            },
+            {
+                id: "c6",
+                nameKr: "버즈리움 체리 핑크",
+                nameJa: "バズリウムチェリーピンク",
+                source: "스페셜",
+                color: "핑크",
+                designGroup: "buzzrium_cherry",
+                imageUrl: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=400&auto=format&fit=crop&q=80",
+                description: "스페셜 버즈리움 체인지 성공 시 발광하는 최고 희귀도의 반짝이는 코디."
+            },
+            {
+                id: "c7",
+                nameKr: "스위트 시폰 화이트",
+                nameJa: "スウィートシフォンホワイト",
+                source: "밀피",
+                color: "화이트",
+                designGroup: "sweet_chiffon",
+                imageUrl: "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=400&auto=format&fit=crop&q=80",
+                description: "밀피유 카드로 겹쳐서 완성할 수 있는 부드러운 순백의 레이스 코디."
+            },
+            {
+                id: "c8",
+                nameKr: "매지컬 리본 골드",
+                nameJa: "マジカルリボンゴールド",
+                source: "프리마지",
+                color: "골드",
+                designGroup: "magical_ribbon",
+                imageUrl: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&auto=format&fit=crop&q=80",
+                description: "프리마지 연동 스페셜 에디션으로 수놓아진 화려한 금빛 리본 드레스."
+            }
+        ];
+
+        // Active State Tracking
+        let activeCategory = "전체";
+        let activeColor = null;
+
+        // 2. TRANSLATION HELPER ENGINE
+        function translateJaToKr(jaText) {
+            if (!jaText) return "";
+            let translated = jaText;
+
+            // Direct term replace algorithm
+            Object.keys(jaToKrMap).forEach(key => {
+                const regex = new RegExp(key, 'g');
+                translated = translated.replace(regex, jaToKrMap[key] + " ");
+            });
+
+            // Clean up multiple spaces & trim
+            return translated.replace(/\s+/g, ' ').trim();
+        }
+
+        function handleQuickTranslate() {
+            const input = document.getElementById('translatorInput').value;
+            const outputEl = document.getElementById('translatorOutput');
+            if (!input.trim()) {
+                outputEl.textContent = "번역 결과가 여기에 표시됩니다.";
+                return;
+            }
+            outputEl.textContent = translateJaToKr(input);
+        }
+
+        function autoTranslateInForm() {
+            const jaVal = document.getElementById('addJaName').value;
+            document.getElementById('addKrName').value = translateJaToKr(jaVal);
+        }
+
+        // 3. UI INITIALIZATION & RENDER FUNCTIONS
+        window.addEventListener('DOMContentLoaded', () => {
+            initCategoryBadges();
+            initColorSwatches();
+            renderCoords();
+            setupDropzone();
+            lucide.createIcons();
+        });
+
+        function initCategoryBadges() {
+            const container = document.getElementById('categoryBadgeContainer');
+            container.innerHTML = SOURCES.map(src => `
+                <button onclick="setCategoryFilter('${src}')" 
+                        id="cat-badge-${src}"
+                        class="px-3 py-1 text-xs font-semibold rounded-xl border transition ${src === activeCategory ? 'bg-pink-500 text-white border-pink-500 shadow-sm' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}">
+                    ${src}
+                </button>
+            `).join('');
+        }
+
+        function initColorSwatches() {
+            const container = document.getElementById('colorSwatchContainer');
+            container.innerHTML = COLORS.map(c => `
+                <button onclick="setColorFilter('${c.name}')"
+                        id="color-swatch-${c.name}"
+                        title="${c.name}"
+                        class="w-7 h-7 rounded-full transition transform hover:scale-110 flex items-center justify-center border ${c.border ? 'border-slate-300' : 'border-transparent'} shadow-xs relative"
+                        style="background-color: ${c.hex}">
+                    <span id="check-${c.name}" class="hidden text-white drop-shadow-md text-xs font-bold">✓</span>
+                </button>
+            `).join('');
+        }
+
+        function renderCoords(list = coordsData) {
+            const grid = document.getElementById('coordGrid');
+            const empty = document.getElementById('emptyState');
+            const countTag = document.getElementById('resultCount');
+
+            countTag.textContent = `${list.length}개`;
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            grid.innerHTML = list.map(item => `
+                <div onclick="openDetailModal('${item.id}')" 
+                     class="bg-white rounded-2xl p-3 border border-pink-100 card-shadow hover:shadow-lg transition duration-200 cursor-pointer flex flex-col group transform hover:-translate-y-1">
+                    
+                    <div class="aspect-square bg-slate-50 rounded-xl overflow-hidden mb-2.5 relative border border-slate-100">
+                        <img src="${item.imageUrl}" alt="${item.nameKr}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/70 text-white backdrop-blur-xs">
+                            ${item.source}
+                        </span>
+                        ${item.matchScore ? `
+                            <span class="absolute bottom-2 right-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-pink-500 text-white shadow-md animate-pulse">
+                                ${item.matchScore}% 일치
+                            </span>
+                        ` : ''}
+                    </div>
+
+                    <div class="space-y-1 flex-1 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-xs sm:text-sm text-slate-800 line-clamp-1 group-hover:text-pink-600 transition">
+                                ${item.nameKr}
+                            </h3>
+                            <p class="text-[11px] font-ja text-slate-400 line-clamp-1">
+                                ${item.nameJa}
+                            </p>
+                        </div>
+
+                        <div class="pt-1.5 flex items-center justify-between border-t border-slate-50">
+                            <span class="text-[10px] font-medium text-slate-400">색상</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                                ${item.color}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // 4. FILTERING & SEARCH ENGINE
+        function applyFilters() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const sortBy = document.getElementById('sortBy').value;
+
+            let filtered = coordsData.filter(item => {
+                const matchCategory = (activeCategory === "전체") || (item.source === activeCategory);
+                const matchColor = !activeColor || (item.color === activeColor);
+                const matchSearch = !searchVal || 
+                                    item.nameKr.toLowerCase().includes(searchVal) || 
+                                    item.nameJa.toLowerCase().includes(searchVal);
+                return matchCategory && matchColor && matchSearch;
+            });
+
+            // Sorting logic
+            if (sortBy === 'name') {
+                filtered.sort((a, b) => a.nameKr.localeCompare(b.nameKr));
+            } else if (sortBy === 'source') {
+                filtered.sort((a, b) => a.source.localeCompare(b.source));
+            }
+
+            renderCoords(filtered);
+        }
+
+        function setCategoryFilter(category) {
+            activeCategory = category;
+            initCategoryBadges();
+            applyFilters();
+        }
+
+        function resetCategoryFilter() {
+            setCategoryFilter("전체");
+        }
+
+        function setColorFilter(colorName) {
+            if (activeColor === colorName) {
+                activeColor = null; // Toggle off
+            } else {
+                activeColor = colorName;
+            }
+
+            // Update swatch checkmarks UI
+            COLORS.forEach(c => {
+                const check = document.getElementById(`check-${c.name}`);
+                if (check) {
+                    if (c.name === activeColor) check.classList.remove('hidden');
+                    else check.classList.add('hidden');
+                }
+            });
+
+            applyFilters();
+        }
+
+        function resetColorFilter() {
+            activeColor = null;
+            COLORS.forEach(c => {
+                const check = document.getElementById(`check-${c.name}`);
+                if (check) check.classList.add('hidden');
+            });
+            applyFilters();
+        }
+
+        // 5. IMAGE MATCHING SIMULATOR ENGINE (Visual Analysis)
+        function setupDropzone() {
+            const dropzone = document.getElementById('dropzone');
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.add('bg-purple-100/50');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    dropzone.classList.remove('bg-purple-100/50');
+                }, false);
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) handleFile(files[0]);
+            });
+
+            dropzone.addEventListener('click', () => {
+                document.getElementById('imageInput').click();
+            });
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) handleFile(file);
+        }
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('uploadedPreview').src = e.target.result;
+                document.getElementById('uploadPrompt').classList.add('hidden');
+                document.getElementById('uploadPreviewContainer').classList.remove('hidden');
+
+                runImageSimilarityMatch();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImageUpload(e) {
+            e.stopPropagation();
+            document.getElementById('imageInput').value = '';
+            document.getElementById('uploadPrompt').classList.remove('hidden');
+            document.getElementById('uploadPreviewContainer').classList.add('hidden');
+            document.getElementById('matchStatus').classList.add('hidden');
+
+            // Clear match scores and reset list
+            coordsData.forEach(item => delete item.matchScore);
+            applyFilters();
+        }
+
+        function runImageSimilarityMatch() {
+            const statusBox = document.getElementById('matchStatus');
+            const statusText = document.getElementById('statusText');
+            const scoreTag = document.getElementById('matchScoreTag');
+
+            statusBox.classList.remove('hidden');
+            statusText.textContent = "코디 패턴 및 이미지 특징 벡터 계산 중...";
+            scoreTag.textContent = "";
+
+            setTimeout(() => {
+                statusText.textContent = "데이터베이스 매칭 완료!";
+                
+                // Simulate similarity scoring logic
+                const scoredList = coordsData.map((item, idx) => {
+                    // Produce realistic match scores (e.g., 98%, 85%, etc.)
+                    let score = 95 - (idx * 11) + Math.floor(Math.random() * 5);
+                    if (score < 40) score = Math.floor(Math.random() * 30) + 10;
+                    return { ...item, matchScore: score };
+                });
+
+                scoredList.sort((a, b) => b.matchScore - a.matchScore);
+                
+                scoreTag.textContent = `최고 ${scoredList[0].matchScore}% 매칭`;
+                renderCoords(scoredList);
+            }, 800);
+        }
+
+        // 6. DETAIL MODAL & SIMILAR DESIGNS LOOKUP
+        function openDetailModal(id) {
+            const item = coordsData.find(c => c.id === id);
+            if (!item) return;
+
+            document.getElementById('modalKrName').textContent = item.nameKr;
+            document.getElementById('modalJaName').textContent = item.nameJa;
+            document.getElementById('modalSourceBadge').textContent = item.source;
+            document.getElementById('modalImage').src = item.imageUrl;
+            document.getElementById('modalDesignGroup').textContent = item.designGroup || "기본 디자인";
+            document.getElementById('modalDescription').textContent = item.description || "등록된 상세 정보가 없습니다.";
+            
+            document.getElementById('modalColorText').textContent = item.color;
+            const colorObj = COLORS.find(c => c.name === item.color);
+            document.getElementById('modalColorDot').style.backgroundColor = colorObj ? colorObj.hex : '#94A3B8';
+
+            // Find Similar Designs (Same design group)
+            const similarCoords = coordsData.filter(c => c.designGroup === item.designGroup && c.id !== item.id);
+            const similarListContainer = document.getElementById('similarList');
+
+            if (similarCoords.length === 0) {
+                similarListContainer.innerHTML = `
+                    <div class="col-span-full py-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl">
+                        등록된 유사 색상/디자인 파생 코디가 없습니다.
+                    </div>
+                `;
+            } else {
+                similarListContainer.innerHTML = similarCoords.map(sim => `
+                    <div onclick="openDetailModal('${sim.id}')" class="bg-pink-50/50 hover:bg-pink-100/60 p-2 rounded-xl border border-pink-100 cursor-pointer transition text-center space-y-1 group">
+                        <img src="${sim.imageUrl}" class="w-full h-16 object-cover rounded-lg group-hover:scale-105 transition">
+                        <p class="text-[11px] font-bold text-slate-700 line-clamp-1">${sim.nameKr}</p>
+                        <span class="inline-block text-[9px] px-1.5 py-0.2 bg-white rounded text-pink-600 font-semibold">${sim.color}</span>
+                    </div>
+                `).join('');
+            }
+
+            openModal('detailModal');
+        }
+
+        // 7. MODAL HELPERS & ADD NEW COORD
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function handleAddCoord(e) {
+            e.preventDefault();
+            const nameJa = document.getElementById('addJaName').value;
+            const nameKr = document.getElementById('addKrName').value;
+            const source = document.getElementById('addSource').value;
+            const color = document.getElementById('addColor').value;
+            const designGroup = document.getElementById('addDesignGroup').value || "custom_group";
+            const imageUrlInput = document.getElementById('addImageUrl').value;
+
+            const newCoord = {
+                id: "custom_" + Date.now(),
+                nameKr: nameKr,
+                nameJa: nameJa,
+                source: source,
+                color: color,
+                designGroup: designGroup,
+                imageUrl: imageUrlInput || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+                description: "사용자가 새로 추가한 아이프리 코디 정보입니다."
+            };
+
+            coordsData.unshift(newCoord);
+            applyFilters();
+            closeModal('addModal');
+            document.getElementById('addCoordForm').reset();
+        }
+    </script>
+</body>
+</html>
