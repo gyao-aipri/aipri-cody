@@ -166,7 +166,7 @@
               <i data-lucide="languages" class="w-3.5 h-3.5"></i> 일본어 코디명 ➡️ 자연스러운 한글 번역
             </div>
             <div class="flex gap-2">
-              <input type="text" id="jpTranslateInput" placeholder="예: フワフワキャットレッド / にゃんにゃん"
+              <input type="text" id="jpTranslateInput" placeholder="예: うさぎぬいぐるみオレンジ / バズリウム"
                 class="flex-1 px-3 py-1 bg-white rounded-xl border border-purple-200 text-xs focus:outline-none jp-font">
               <button onclick="runQuickTranslate()" class="px-3 py-1 bg-purple-500 text-white rounded-xl text-xs font-bold hover:bg-purple-600 transition">
                 변환
@@ -248,7 +248,7 @@
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">일본어 코디명</label>
             <div class="flex gap-1">
-              <input type="text" id="nameJp" placeholder="예: フワフワキャットレッド" oninput="autoTranslateName()" required
+              <input type="text" id="nameJp" placeholder="예: うさぎぬいぐるみオレンジ" oninput="autoTranslateName()" required
                 class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400 jp-font">
               <button type="button" onclick="autoTranslateName()" class="px-2.5 bg-purple-100 text-purple-600 text-xs font-bold rounded-xl hover:bg-purple-200">
                 번역
@@ -257,7 +257,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">한국어 코디명</label>
-            <input type="text" id="nameKr" placeholder="예: 후와후와 캣 레드" required
+            <input type="text" id="nameKr" placeholder="예: 주황색 토끼 인형" required
               class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
           </div>
         </div>
@@ -288,7 +288,7 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">디자인 라인그룹 (선택)</label>
-            <input type="text" id="designGroup" placeholder="예: 후와후와 캣 드레스"
+            <input type="text" id="designGroup" placeholder="예: 토끼 인형"
               class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
           </div>
           <div class="pt-4 flex items-center gap-2">
@@ -401,7 +401,8 @@
       'MAGIC': '프리마지',
       'GUMI': '구미',
       'MILFY': '밀피',
-      'SPECIAL': '스페셜'
+      'SPEC_HIMI': '스페셜(히미프리)',
+      'SPEC_ONE': '스페셜(오네프리)'
     };
 
     const SUB_CATEGORIES = {
@@ -410,7 +411,8 @@
       'MAGIC': ['전체', '1장', '2장', '3장', '4장', '5장', '6장', '스튜디오 1・2장', '스튜디오 3・4장', '스튜디오 5・6장', '스튜디오 7・8장', '스튜디오 9장', '스튜디오 10장'],
       'GUMI': ['전체', '히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
       'MILFY': ['전체', '히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
-      'SPECIAL': ['전체', '스페셜']
+      'SPEC_HIMI': ['전체', '스페셜'],
+      'SPEC_ONE': ['전체', '스페셜']
     };
 
     const COLORS = [
@@ -431,7 +433,7 @@
 
     function initDatabase() {
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open('AiPriCodyDB', 1);
+        const request = indexedDB.open('AiPriCodyDB', 2);
         request.onupgradeneeded = (e) => {
           const dbRef = e.target.result;
           if (!dbRef.objectStoreNames.contains('codies')) {
@@ -485,23 +487,29 @@
       });
     }
 
-    // --- TRANSLATION LOGIC ---
+    // --- IMPROVED TRANSLATION LOGIC (NO ISOLATED '응') ---
     function translateJpToKr(text) {
       if (!text) return '';
       const wordMap = {
+        'うさぎ': '토끼', 'ウサギ': '토끼',
+        'ぬいぐるみ': '인형',
+        'オレンジ': '주황색',
+        'バズリウム': '바ズ리ウム',
+        'ラビット': '래빗',
+        'くらげ': '해파리', 'クラゲ': '해파리',
         'サンキュー': '샌큐', 'フォーザ': '포 더', 'フォーエバー': '포에버',
         'ワッチャ': '왓차', 'プリマジ': '프리마지', 'ひみつの': '비밀의',
         'アイプリ': '아이프리', 'ハピネス': '해피니스', 'バタフライ': '버터플라이',
         'にゃんにゃん': '냥냥', 'ニャンニャン': '냥냥', 'ロリータ': '로리타',
-        'フラワー': '플라워', 'カフェ': '카페', 'オレンジ': '오렌지', 'ピンク': '핑크', 'ブルー': '블루',
+        'フラワー': '플라워', 'カフェ': '카페', 'ピンク': '핑크', 'ブルー': '블루',
         'イエロー': '옐로우', 'パープル': '퍼플', 'グリーン': '그린', 'ホワイト': '화이트',
         'ブラック': '블랙', 'レッド': '레드', 'ドレス': '드레스', 'スタイル': '스타일',
         'リボン': '리본', 'チェック': '체크', 'ハート': '하트', 'スター': '스타',
         'クラウン': '크라운', 'プリンセス': '프린세스', 'ナイト': '나이트',
         'ミルキー': '밀키', 'スイート': '스위트', 'スウィート': '스위트',
         'キャット': '캣', 'ベア': '베어', 'ローズ': '로즈', 'フラミンゴ': '플라밍고',
-        'ゴシック': '고딕', 'エンジェル': '엔젤', 'デビル': '데빌', 'ふわふわ': '후와후와',
-        'キラキラ': '반짝반짝', 'もこもこ': '복실복실', 'ラビット': '래빗',
+        'ゴシック': '고딕', 'エンジェル': 'エンジェル', 'デビル': '데빌', 'ふわふわ': '후와후와',
+        'キラキラ': '반짝반짝', 'もこもこ': '복실복실',
         'エレメンツ': '엘리멘츠', 'サンシャイン': '선샤인', 'きらめきの': '반짝임의',
         'ミッドナイト': '미드나이트', 'ラブリー': '러블리', 'メロディ': '멜로디',
         'ステンドグラス': '스테인드글라스', 'みるき': '미루키', 'ミラクル': '미라클',
@@ -545,10 +553,10 @@
         'ネ': '네', 'ノ': '노', 'ハ': '하', 'ヒ': '히', 'フ': '후', 'ヘ': '헤', 'ホ': '호',
         'マ': '마', 'ミ': '미', 'ム': '무', 'メ': '메', 'モ': '모', 'ヤ': '야', 'ユ': '유',
         'ヨ': '요', 'ラ': '라', 'リ': '리', 'ル': '루', 'レ': '레', 'ロ': '로', 'ワ': '와',
-        'ヲ': '워', 'ン': '운', 'ガ': '가', 'ギ': '기', 'グ': '구', 'ゲ': '게', 'ゴ': '고',
+        'ヲ': '워', 'ン': '', 'ガ': '가', 'ギ': '기', 'グ': '구', 'ゲ': '게', 'ゴ': '고',
         'ザ': '자', 'ジ': '지', 'ズ': '즈', 'ゼ': '제', 'ゾ': '조', 'ダ': '다', 'ヂ': '지',
         'ヅ': '즈', 'デ': '데', 'ド': '도', 'バ': '바', 'ビ': '비', 'ブ': '부', 'ベ': '베',
-        'ボ': '보', 'パ': '파', 'ピ': '피', 'プ': '푸', 'ペ': '페', 'ポ': '포', 'ッ': 'ᆺ', 'ー': ''
+        'ボ': '보', 'パ': '파', 'ピ': '피', 'プ': '푸', 'ペ': '페', 'ポ': '포', 'ッ': 'ㅅ', 'ー': ''
       };
 
       let output = '';
@@ -557,7 +565,7 @@
         if (i + 1 < kataText.length && kataMap[kataText.substr(i, 2)]) {
           output += kataMap[kataText.substr(i, 2)];
           i += 2;
-        } else if (kataMap[kataText[i]]) {
+        } else if (kataMap[kataText[i]] !== undefined) {
           output += kataMap[kataText[i]];
           i++;
         } else {
@@ -566,7 +574,7 @@
         }
       }
 
-      return output.replace(/운/g, '응').replace(/\s+/g, ' ').trim();
+      return output.replace(/\s+/g, ' ').trim();
     }
 
     // STATE VARIABLES
@@ -716,8 +724,7 @@
 
       if (codyList.length === 0) {
         const defaults = [
-          { id: 'p_10_1', nameJp: 'サンキューフォーザワッチャプリマジフォーエバー', nameKr: '샌큐 포 더 왓차 프리마지 포에버', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: '샌큐 포 더 왓차', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,182,193], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_2', nameJp: 'スマイルエレメンツサンシャイン', nameKr: '스마일 엘리멘츠 선샤인', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '스마일 엘리멘츠', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,235,59], layoutVec:[128,128,128,128,128,128,128,128,128] }
+          { id: 'p_10_1', nameJp: 'うさぎぬいぐるみオレンジ', nameKr: '주황색 토끼 인형', mainCat: 'SPEC_HIMI', subCat: '스튜디오', color: 'orange', designGroup: '토끼 인형', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,140,0], layoutVec:[128,128,128,128,128,128,128,128,128] }
         ];
         for (let item of defaults) {
           await saveCodyDB(item);
@@ -1217,7 +1224,7 @@
       return codyList.filter(c => {
         if (c.id === targetItem.id) return false;
 
-        const stripColors = (str) => (str || '').replace(/(오렌지|핑크|블루|옐로우|퍼플|그린|화이트|블랙|레드|オレンジ|ピンク|ブルー|イエロー|パープル|グリーン|ホワイト|ブラック|レッド)/g, '').trim();
+        const stripColors = (str) => (str || '').replace(/(주황색|오렌지|핑크|블루|옐로우|퍼플|그린|화이트|블랙|레드|オレンジ|ピンク|ブルー|イエロー|パープル|グリーン|ホワイト|ブラック|レッド)/g, '').trim();
         const cleanA = stripColors(targetItem.nameKr);
         const cleanB = stripColors(c.nameKr);
 
