@@ -416,6 +416,7 @@
     const COLORS = [
       { id: 'ALL', name: '전체', bg: 'bg-slate-200', text: 'text-slate-700' },
       { id: 'pink', name: '핑크', bg: 'bg-pink-400', text: 'text-white' },
+      { id: 'orange', name: '주황색', bg: 'bg-orange-400', text: 'text-white' },
       { id: 'blue', name: '블루', bg: 'bg-blue-400', text: 'text-white' },
       { id: 'yellow', name: '옐로우', bg: 'bg-amber-300', text: 'text-slate-800' },
       { id: 'purple', name: '퍼플', bg: 'bg-purple-400', text: 'text-white' },
@@ -425,7 +426,7 @@
       { id: 'red', name: '레드', bg: 'bg-red-500', text: 'text-white' }
     ];
 
-    // --- INDEXEDDB STORAGE SYSTEM (NO CAPACITY LIMIT) ---
+    // --- INDEXEDDB STORAGE SYSTEM ---
     let db = null;
 
     function initDatabase() {
@@ -488,11 +489,11 @@
     function translateJpToKr(text) {
       if (!text) return '';
       const wordMap = {
-        'サンキュー': '샌큐', 'フォーザ': '포 더', 'フォーエバー': '포エ버',
+        'サンキュー': '샌큐', 'フォーザ': '포 더', 'フォーエバー': '포에버',
         'ワッチャ': '왓차', 'プリマジ': '프리마지', 'ひみつの': '비밀의',
         'アイプリ': '아이프리', 'ハピネス': '해피니스', 'バタフライ': '버터플라이',
         'にゃんにゃん': '냥냥', 'ニャンニャン': '냥냥', 'ロリータ': '로리타',
-        'フラワー': '플라워', 'カフェ': '카페', 'ピンク': '핑크', 'ブルー': '블루',
+        'フラワー': '플라워', 'カフェ': '카페', 'オレンジ': '오렌지', 'ピンク': '핑크', 'ブルー': '블루',
         'イエロー': '옐로우', 'パープル': '퍼플', 'グリーン': '그린', 'ホワイト': '화이트',
         'ブラック': '블랙', 'レッド': '레드', 'ドレス': '드레스', 'スタイル': '스타일',
         'リボン': '리본', 'チェック': '체크', 'ハート': '하트', 'スター': '스타',
@@ -504,7 +505,7 @@
         'エレメンツ': '엘리멘츠', 'サンシャイン': '선샤인', 'きらめきの': '반짝임의',
         'ミッドナイト': '미드나이트', 'ラブリー': '러블리', 'メロディ': '멜로디',
         'ステンドグラス': '스테인드글라스', 'みるき': '미루키', 'ミラクル': '미라클',
-        'れもん': '레몬', 'エンジェルバブル': '엔젤 버ブル', 'アップル': '애플',
+        'れもん': '레몬', 'エンジェルバブル': '엔젤 버블', 'アップル': '애플',
         'ティーパーティー': '티 파티', 'コスメティック': '코스메틱', 'フローラル': '플로럴'
       };
 
@@ -661,7 +662,7 @@
       const savedPass = localStorage.getItem('aipri_pass');
       if (!savedPass) {
         document.getElementById('lockTitle').innerText = '비밀번호 설정';
-        document.getElementById('lockDesc').innerText = '나만의 비밀 아이프리 도감에서 사용할 비밀번호를 설정하세요.';
+        document.getElementById('lockDesc').innerText = '나만의 아이프리 도감에서 사용할 비밀번호를 설정하세요.';
         document.getElementById('lockSubmitBtn').innerText = '설정하고 시작하기';
       }
     }
@@ -700,7 +701,6 @@
     async function loadCodyData() {
       codyList = await getAllCodiesDB();
 
-      // Migrate from LocalStorage if IndexedDB is empty
       if (codyList.length === 0) {
         const oldData = localStorage.getItem('aipri_cody_list');
         if (oldData) {
@@ -714,7 +714,6 @@
         }
       }
 
-      // Default sample items if still empty
       if (codyList.length === 0) {
         const defaults = [
           { id: 'p_10_1', nameJp: 'サンキューフォーザワッチャプリマジフォーエバー', nameKr: '샌큐 포 더 왓차 프리마지 포에버', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: '샌큐 포 더 왓차', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,182,193], layoutVec:[128,128,128,128,128,128,128,128,128] },
@@ -1218,7 +1217,7 @@
       return codyList.filter(c => {
         if (c.id === targetItem.id) return false;
 
-        const stripColors = (str) => (str || '').replace(/(핑크|블루|옐로우|퍼플|그린|화이트|블랙|레드|ピンク|ブルー|イエロー|パープル|グリーン|ホワイト|ブラック|レッド)/g, '').trim();
+        const stripColors = (str) => (str || '').replace(/(오렌지|핑크|블루|옐로우|퍼플|그린|화이트|블랙|레드|オレンジ|ピンク|ブルー|イエロー|パープル|グリーン|ホワイト|ブラック|レッド)/g, '').trim();
         const cleanA = stripColors(targetItem.nameKr);
         const cleanB = stripColors(c.nameKr);
 
