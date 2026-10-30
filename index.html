@@ -20,7 +20,7 @@
       font-family: 'Kosugi Maru', 'Noto Sans KR', sans-serif;
     }
     .glass-card {
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.9);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(251, 207, 232, 0.5);
     }
@@ -40,14 +40,14 @@
 </head>
 <body class="min-h-screen text-slate-800 pb-12">
 
-  <!-- PASSWORD MODAL (Private Lock) -->
+  <!-- PASSWORD MODAL -->
   <div id="lockModal" class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border-4 border-pink-300 text-center relative overflow-hidden">
       <div class="w-16 h-16 bg-pink-100 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold shadow-inner">
         <i data-lucide="lock"></i>
       </div>
       <h2 id="lockTitle" class="text-2xl font-black text-pink-600 mb-2">비밀번호 확인</h2>
-      <p id="lockDesc" class="text-xs text-slate-500 mb-6">나만의 아이프리 코디 도감에 접근하려면 비밀번호를 입력하세요.</p>
+      <p id="lockDesc" class="text-xs text-slate-500 mb-6">나만의 비밀 아이프리 코디 도감에 접근합니다.</p>
       
       <form id="lockForm" class="space-y-4">
         <div>
@@ -74,7 +74,7 @@
         </div>
         <div>
           <h1 class="text-2xl font-black tracking-tight text-pink-600">아이프리 코디 도감</h1>
-          <p class="text-xs text-slate-500 font-medium">나만의 Private 비밀 코디 & 공식 데이터 관리 시스템</p>
+          <p class="text-xs text-slate-500 font-medium">나만의 Private 코디 매니저 & 컬렉션 도감</p>
         </div>
       </div>
 
@@ -82,18 +82,37 @@
         <button onclick="openAddModal()" class="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl text-sm font-bold shadow-md transition flex items-center gap-1.5">
           <i data-lucide="plus-circle" class="w-4 h-4"></i> 코디 등록
         </button>
-        <button onclick="exportData()" title="데이터 백업 내보내기" class="p-2.5 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-2xl text-sm font-bold transition">
+        <button onclick="exportData()" title="데이터 내보내기" class="p-2.5 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-2xl text-sm font-bold transition">
           <i data-lucide="download" class="w-5 h-5"></i>
         </button>
         <label title="데이터 불러오기" class="p-2.5 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-2xl text-sm font-bold transition cursor-pointer">
           <i data-lucide="upload" class="w-5 h-5"></i>
           <input type="file" accept=".json" onchange="importData(event)" class="hidden">
         </label>
+        <button onclick="resetAllData()" title="도감 초기화" class="p-2.5 bg-red-100 text-red-600 hover:bg-red-200 rounded-2xl text-sm font-bold transition">
+          <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+        </button>
         <button onclick="changePassword()" title="비밀번호 변경" class="p-2.5 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-2xl text-sm font-bold transition">
           <i data-lucide="key" class="w-5 h-5"></i>
         </button>
       </div>
     </header>
+
+    <!-- COLLECTION PROGRESS STATS BAR -->
+    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <i data-lucide="trophy" class="w-5 h-5 text-amber-500"></i>
+          <h2 class="text-sm font-bold text-slate-700">코디 수집 달성률</h2>
+        </div>
+        <div class="text-xs font-black text-pink-600">
+          <span id="ownedCount">0</span> / <span id="totalCount">0</span> 개 (<span id="collectionRate">0</span>%)
+        </div>
+      </div>
+      <div class="w-full bg-pink-100 rounded-full h-3.5 overflow-hidden p-0.5 border border-pink-200">
+        <div id="progressBar" class="bg-gradient-to-r from-pink-400 to-purple-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+      </div>
+    </section>
 
     <!-- SEARCH & MATCHING SECTION -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -109,80 +128,85 @@
           </div>
           
           <div id="dropZone" onclick="document.getElementById('searchImgInput').click()"
-            class="border-2 border-dashed border-pink-300 hover:border-pink-500 bg-pink-50/50 rounded-2xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden">
+            class="border-2 border-dashed border-pink-300 hover:border-pink-500 bg-pink-50/50 rounded-2xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[130px] relative overflow-hidden">
             <input type="file" id="searchImgInput" accept="image/*" onchange="handleSearchImage(event)" class="hidden">
             
             <div id="dropPrompt" class="space-y-1">
-              <i data-lucide="image-plus" class="w-8 h-8 text-pink-400 mx-auto"></i>
-              <p class="text-xs font-semibold text-pink-600">사진 업로드 / 클릭 / Ctrl+V 붙여넣기</p>
-              <p class="text-[10px] text-slate-400">유사한 색상 및 패턴의 코디 검색</p>
+              <i data-lucide="image-plus" class="w-7 h-7 text-pink-400 mx-auto"></i>
+              <p class="text-xs font-semibold text-pink-600">사진 클릭 / 붙여넣기 (Ctrl+V)</p>
+              <p class="text-[10px] text-slate-400">색상 및 디자인 패턴 검색</p>
             </div>
             
             <img id="previewSearchImg" class="hidden absolute inset-0 w-full h-full object-contain bg-white/90 p-2">
           </div>
         </div>
 
-        <div id="matchStatus" class="mt-3 text-xs text-center text-pink-500 font-bold hidden">
-          ✨ AI 유사도 및 패턴 분석 완료!
+        <div id="matchStatus" class="mt-2 text-xs text-center text-pink-500 font-bold hidden">
+          ✨ AI 디자인 및 색상 매칭 완료!
         </div>
       </div>
 
       <!-- TEXT SEARCH & TRANSLATION TOOL -->
-      <div class="glass-card rounded-3xl p-5 shadow-sm md:col-span-2 flex flex-col justify-between space-y-4">
+      <div class="glass-card rounded-3xl p-5 shadow-sm md:col-span-2 flex flex-col justify-between space-y-3">
         <div>
-          <h2 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-            <i data-lucide="search" class="w-4 h-4 text-purple-500"></i> 텍스트 검색 & 정밀 번역기
+          <h2 class="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+            <i data-lucide="search" class="w-4 h-4 text-purple-500"></i> 텍스트 검색 & 번역
           </h2>
-          <div class="flex gap-2 mb-3">
+          <div class="flex gap-2 mb-2">
             <div class="relative flex-1">
-              <input type="text" id="searchInput" oninput="applyFilters()" placeholder="코디 이름 검색 (한글 또는 일어)..."
-                class="w-full pl-9 pr-4 py-2.5 bg-white rounded-2xl border border-pink-200 text-xs focus:outline-none focus:border-pink-400">
-              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+              <input type="text" id="searchInput" oninput="applyFilters()" placeholder="코디 이름 검색 (한글 또는 일본어)..."
+                class="w-full pl-9 pr-4 py-2 bg-white rounded-2xl border border-pink-200 text-xs focus:outline-none focus:border-pink-400">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
             </div>
           </div>
 
           <!-- TRANSLATOR BOX -->
-          <div class="bg-purple-50/60 rounded-2xl p-3 border border-purple-100">
-            <div class="text-[11px] font-bold text-purple-700 mb-1.5 flex items-center gap-1">
-              <i data-lucide="languages" class="w-3.5 h-3.5"></i> 일본어 코디명 ➡️ 정밀 자연스러운 한글 번역기
+          <div class="bg-purple-50/60 rounded-2xl p-2.5 border border-purple-100">
+            <div class="text-[11px] font-bold text-purple-700 mb-1 flex items-center gap-1">
+              <i data-lucide="languages" class="w-3.5 h-3.5"></i> 일본어 코디명 ➡️ 자연스러운 한글 번역
             </div>
             <div class="flex gap-2">
-              <input type="text" id="jpTranslateInput" placeholder="예: サンキューフォーザワッチャプリマジフォーエバー"
-                class="flex-1 px-3 py-1.5 bg-white rounded-xl border border-purple-200 text-xs focus:outline-none jp-font">
-              <button onclick="runQuickTranslate()" class="px-3 py-1.5 bg-purple-500 text-white rounded-xl text-xs font-bold hover:bg-purple-600 transition">
-                변환
+              <input type="text" id="jpTranslateInput" placeholder="예: フワフワキャットレッド / にゃんにゃん"
+                class="flex-1 px-3 py-1 bg-white rounded-xl border border-purple-200 text-xs focus:outline-none jp-font">
+              <button onclick="runQuickTranslate()" class="px-3 py-1 bg-purple-500 text-white rounded-xl text-xs font-bold hover:bg-purple-600 transition">
+                번역
               </button>
             </div>
-            <div id="translateResult" class="text-xs font-bold text-pink-600 mt-2 min-h-[18px]"></div>
+            <div id="translateResult" class="text-xs font-bold text-pink-600 mt-1 min-h-[16px]"></div>
           </div>
         </div>
 
         <!-- QUICK COLOR FILTER SWATCHES -->
         <div>
-          <div class="text-[11px] font-semibold text-slate-500 mb-1.5">대표 색상 필터</div>
-          <div id="colorSwatches" class="flex flex-wrap gap-1.5">
-            <!-- Dynamic Color Buttons -->
-          </div>
+          <div class="text-[11px] font-semibold text-slate-500 mb-1">대표 색상 필터</div>
+          <div id="colorSwatches" class="flex flex-wrap gap-1.5"></div>
         </div>
 
       </div>
 
     </section>
 
-    <!-- CATEGORY & SUB-SEASON FILTER TABS -->
-    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-4">
+    <!-- CATEGORY & COLLECTION STATE FILTER TABS -->
+    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-3">
+      <!-- VIEW MODE (ALL / FAVORITES / OWNED / UNOWNED) -->
       <div>
-        <div class="text-xs font-bold text-slate-500 mb-2">대분류 소속 카테고리</div>
-        <div id="mainCategoryTabs" class="flex flex-wrap gap-2">
-          <!-- Main Categories -->
+        <div class="text-xs font-bold text-slate-500 mb-1.5">보기 모드</div>
+        <div id="viewModeTabs" class="flex flex-wrap gap-2">
+          <button onclick="setViewMode('ALL')" id="vTab_ALL" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-pink-500 text-white shadow-sm">전체 보기</button>
+          <button onclick="setViewMode('FAV')" id="vTab_FAV" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">❤️ 즐겨찾기</button>
+          <button onclick="setViewMode('OWNED')" id="vTab_OWNED" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">✅ 획득함</button>
+          <button onclick="setViewMode('UNOWNED')" id="vTab_UNOWNED" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">❌ 미획득</button>
         </div>
       </div>
 
-      <div id="subCategoryWrapper" class="pt-3 border-t border-pink-100">
-        <div class="text-xs font-bold text-slate-500 mb-2">세부 시즌 / 탄 선택</div>
-        <div id="subCategoryTabs" class="flex flex-wrap gap-1.5">
-          <!-- Sub Categories -->
-        </div>
+      <div class="border-t border-pink-100 pt-3">
+        <div class="text-xs font-bold text-slate-500 mb-1.5">대분류 카테고리</div>
+        <div id="mainCategoryTabs" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div id="subCategoryWrapper" class="border-t border-pink-100 pt-3">
+        <div class="text-xs font-bold text-slate-500 mb-1.5">세부 시즌 / 탄</div>
+        <div id="subCategoryTabs" class="flex flex-wrap gap-1.5"></div>
       </div>
     </section>
 
@@ -195,14 +219,12 @@
         </h3>
       </div>
 
-      <div id="codyGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <!-- Cody Cards -->
-      </div>
+      <div id="codyGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
       <div id="emptyState" class="hidden text-center py-16 bg-white/60 rounded-3xl border border-dashed border-pink-200">
         <i data-lucide="ghost" class="w-12 h-12 text-pink-300 mx-auto mb-2"></i>
-        <p class="text-sm font-bold text-slate-500">등록되었거나 조건에 맞는 코디가 없습니다.</p>
-        <p class="text-xs text-slate-400 mt-1">오른쪽 상단의 [+ 코디 등록] 버튼으로 추가해 보세요!</p>
+        <p class="text-sm font-bold text-slate-500">조건에 맞는 코디가 없습니다.</p>
+        <p class="text-xs text-slate-400 mt-1">[+ 코디 등록] 버튼으로 나만의 코디를 추가해 보세요!</p>
       </div>
     </section>
 
@@ -222,7 +244,7 @@
       <form id="codyForm" onsubmit="saveCody(event)" class="space-y-4">
         <input type="hidden" id="editId">
 
-        <!-- NAMES (JP & KR) -->
+        <!-- NAMES -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">일본어 코디명</label>
@@ -257,8 +279,8 @@
           </div>
         </div>
 
-        <!-- REPRESENTATIVE COLOR & DESIGN GROUP -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- COLOR & DESIGN & OWNED CHECK -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">대표 색상</label>
             <select id="colorSelect" required
@@ -266,16 +288,20 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">디자인 라인그룹 (선택 사항)</label>
-            <input type="text" id="designGroup" placeholder="비워두셔도 AI가 패턴을 분석하여 리컬러를 찾아줍니다"
+            <label class="block text-xs font-bold text-slate-600 mb-1">디자인 라인그룹 (선택)</label>
+            <input type="text" id="designGroup" placeholder="예: 후와후와 캣 드레스"
               class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+          </div>
+          <div class="pt-4 flex items-center gap-2">
+            <input type="checkbox" id="isOwnedCheck" class="w-4 h-4 text-pink-500 rounded focus:ring-pink-400 cursor-pointer">
+            <label for="isOwnedCheck" class="text-xs font-bold text-slate-700 cursor-pointer">이 코디 보유 중 (획득)</label>
           </div>
         </div>
 
-        <!-- MAIN CODY IMAGE -->
+        <!-- MAIN IMAGE -->
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="block text-xs font-bold text-slate-600">코디 대표 사진 (Ctrl+V 붙여넣기 가능)</label>
+            <label class="block text-xs font-bold text-slate-600">대표 사진 (클릭 / Ctrl+V 붙여넣기)</label>
             <button type="button" id="removeMainImgBtn" onclick="removeMainImg()" class="text-[11px] text-red-500 font-bold hover:underline hidden">사진 삭제</button>
           </div>
           <input type="file" id="codyImgInput" accept="image/*" onchange="previewUploadImg(event)"
@@ -285,82 +311,65 @@
           </div>
         </div>
 
-        <!-- 5 QR CODES SECTION -->
+        <!-- 5 QR CODES -->
         <div class="border-t border-pink-100 pt-3">
-          <label class="block text-xs font-black text-purple-600 mb-2">
-            코디 QR 코드 등록 (최대 5종: 전체, 악세, 상의, 하의, 슈즈 / 사진 삭제 버튼 지원)
-          </label>
+          <label class="block text-xs font-black text-purple-600 mb-2">부위별 QR 코드 등록 (최대 5종)</label>
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
             
-            <!-- ALL -->
             <div class="bg-pink-50/50 p-2 rounded-xl border border-pink-100 flex flex-col justify-between">
               <span class="text-[11px] font-bold text-pink-600 block mb-1">전체</span>
               <input type="file" id="qr_all_input" accept="image/*" onchange="handleQrUpload(event, 'all')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_all_input').click()" class="w-full py-1 bg-white border border-pink-200 text-[10px] rounded-lg font-bold hover:bg-pink-100">
-                  선택/붙여넣기
-                </button>
+                <button type="button" onclick="document.getElementById('qr_all_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-pink-100">업로드/Ctrl+V</button>
                 <button type="button" id="qr_all_del" onclick="removeQr('all')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
-              <img id="qr_all_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+              <img id="qr_all_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
             </div>
 
-            <!-- ACC -->
             <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col justify-between">
               <span class="text-[11px] font-bold text-slate-600 block mb-1">악세</span>
               <input type="file" id="qr_acc_input" accept="image/*" onchange="handleQrUpload(event, 'acc')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_acc_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
-                  선택/붙여넣기
-                </button>
+                <button type="button" onclick="document.getElementById('qr_acc_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
                 <button type="button" id="qr_acc_del" onclick="removeQr('acc')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
-              <img id="qr_acc_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+              <img id="qr_acc_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
             </div>
 
-            <!-- TOP -->
             <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col justify-between">
               <span class="text-[11px] font-bold text-slate-600 block mb-1">상의</span>
               <input type="file" id="qr_top_input" accept="image/*" onchange="handleQrUpload(event, 'top')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_top_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
-                  선택/붙여넣기
-                </button>
+                <button type="button" onclick="document.getElementById('qr_top_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
                 <button type="button" id="qr_top_del" onclick="removeQr('top')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
-              <img id="qr_top_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+              <img id="qr_top_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
             </div>
 
-            <!-- BOTTOM -->
             <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col justify-between">
               <span class="text-[11px] font-bold text-slate-600 block mb-1">하의</span>
               <input type="file" id="qr_bottom_input" accept="image/*" onchange="handleQrUpload(event, 'bottom')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_bottom_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
-                  선택/붙여넣기
-                </button>
+                <button type="button" onclick="document.getElementById('qr_bottom_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
                 <button type="button" id="qr_bottom_del" onclick="removeQr('bottom')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
-              <img id="qr_bottom_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+              <img id="qr_bottom_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
             </div>
 
-            <!-- SHOES -->
             <div class="bg-slate-50 p-2 rounded-xl border border-slate-100 flex flex-col justify-between">
               <span class="text-[11px] font-bold text-slate-600 block mb-1">슈즈</span>
               <input type="file" id="qr_shoes_input" accept="image/*" onchange="handleQrUpload(event, 'shoes')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_shoes_input').click()" class="w-full py-1 bg-white border border-slate-200 text-[10px] rounded-lg font-bold hover:bg-slate-100">
-                  선택/붙여넣기
-                </button>
+                <button type="button" onclick="document.getElementById('qr_shoes_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
                 <button type="button" id="qr_shoes_del" onclick="removeQr('shoes')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
-              <img id="qr_shoes_preview" class="w-12 h-12 mx-auto mt-1 object-cover rounded hidden border">
+              <img id="qr_shoes_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
             </div>
 
           </div>
         </div>
 
-        <div class="pt-4 flex gap-2">
+        <div class="pt-3 flex gap-2">
           <button type="button" onclick="closeAddModal()" class="flex-1 py-2.5 bg-slate-100 text-slate-600 rounded-2xl text-xs font-bold hover:bg-slate-200">
             취소
           </button>
@@ -380,9 +389,7 @@
         <i data-lucide="x" class="w-6 h-6"></i>
       </button>
 
-      <div id="detailContent">
-        <!-- Dynamic Detail View -->
-      </div>
+      <div id="detailContent"></div>
     </div>
   </div>
 
@@ -419,7 +426,6 @@
       { id: 'red', name: '레드', bg: 'bg-red-500', text: 'text-white' }
     ];
 
-    // HIGH-ACCURACY PRETTY SERIES TRANSLATION ENGINE
     function translateJpToKr(text) {
       if (!text) return '';
       const wordMap = {
@@ -433,20 +439,14 @@
         'リボン': '리본', 'チェック': '체크', 'ハート': '하트', 'スター': '스타',
         'クラウン': '크라운', 'プリンセス': '프린세스', 'ナイト': '나이트',
         'ミルキー': '밀키', 'スイート': '스위트', 'スウィート': '스위트',
-        'キャット': '캣', 'ベア': '베어', 'ローズ': '로즈', 'フラミンゴ': '플라밍고',
+        'キャット': '캣', 'ベア': '베어', 'ローズ': '로즈', 'フラミンゴ': '플라ミングゴ',
         'ゴシック': '고딕', 'エンジェル': '엔젤', 'デビル': '데빌', 'ふわふわ': '후와후와',
         'キラキラ': '반짝반짝', 'もこもこ': '복실복실', 'ラビット': '래빗',
         'エレメンツ': '엘리멘츠', 'サンシャイン': '선샤인', 'きらめきの': '반짝임의',
         'ミッドナイト': '미드나이트', 'ラブリー': '러블리', 'メロディ': '멜로디',
         'ステンドグラス': '스테인드글라스', 'みるき': '미루키', 'ミラクル': '미라클',
         'れもん': '레몬', 'エンジェルバブル': '엔젤 버블', 'アップル': '애플',
-        'ティーパーティー': '티 파티', 'コスメティック': '코스메틱', 'フローラル': '플로럴',
-        'ユニコーン': '유니콘', 'フレッシュ': '프레시', 'フェアリー': '페어리',
-        'スプラッシュ': '스플래시', 'マーメイド': '머메이드', 'ドリーム': '드림',
-        'ワンダーランド': '원더랜드', 'ひめめ': '히메메', 'リバティー': '리버티',
-        'シャイニング': '샤이ニング', 'ディーバ': '디바', 'トゥルーラブ': '트루 러브',
-        'ゴールド': '골드', 'シルバー': '실버', 'ショルダー': '숄더', 'パウダースノー': '파우더 스노우',
-        'パタノ': '파타노', 'シークレットアリス': '시크릿 아리스', 'メルティックスター': '멜틱 스타'
+        'ティーパーティー': '티 파티', 'コスメティック': '코스메틱', 'フローラル': '플로럴'
       };
 
       let res = text;
@@ -509,7 +509,9 @@
       return output.replace(/운/g, '응').replace(/\s+/g, ' ').trim();
     }
 
+    // STATE VARIABLES
     let codyList = [];
+    let currentViewMode = 'ALL'; // ALL, FAV, OWNED, UNOWNED
     let currentMainCat = 'ALL';
     let currentSubCat = '전체';
     let currentColor = 'ALL';
@@ -519,6 +521,7 @@
     let tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
     let tempMainImg = null;
 
+    // CLIPBOARD PASTE SUPPORT (Ctrl+V)
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData && e.clipboardData.items;
       if (!items) return;
@@ -562,10 +565,10 @@
       reader.readAsDataURL(file);
     }
 
+    // INITIALIZATION & AUTHENTICATION
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       initLockScreen();
-
       document.getElementById('lockForm').addEventListener('submit', handleAuth);
     });
 
@@ -573,7 +576,7 @@
       const savedPass = localStorage.getItem('aipri_pass');
       if (!savedPass) {
         document.getElementById('lockTitle').innerText = '비밀번호 설정';
-        document.getElementById('lockDesc').innerText = '나만의 아이프리 도감에서 사용할 비밀번호를 새로 설정하세요.';
+        document.getElementById('lockDesc').innerText = '나만의 아이프리 도감에서 사용할 비밀번호를 설정하세요.';
         document.getElementById('lockSubmitBtn').innerText = '설정하고 시작하기';
       }
     }
@@ -609,38 +612,38 @@
       }
     }
 
-    // INITIALIZED DIRECTLY WITH OFFICIAL PRIMAGI STUDIO 10TH & FEATURED CODI LIST (CLEAN START)
     function loadCodyData() {
       const data = localStorage.getItem('aipri_cody_list');
       if (data) {
         codyList = JSON.parse(data);
       } else {
+        // Clean initial dataset with official Primagi Studio 10th coords
         codyList = [
-          { id: 'p_10_1', nameJp: 'サンキューフォーザワッチャプリマジフォーエバー', nameKr: '샌큐 포 더 왓차 프리마지 포에버', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: '샌큐 포 더 왓차', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,182,193], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_2', nameJp: 'スマイルエレメンツサンシャイン', nameKr: '스마일 엘리멘츠 선샤인', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '스마일 엘리멘츠', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,235,59], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_3', nameJp: 'きらめきのプリンセスミッドナイト', nameKr: '반짝임의 프린세스 미드나이트', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'purple', designGroup: 'きらめきのプリンセス', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[147,112,219], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_4', nameJp: 'ラブリーメロディプリンセスブルー', nameKr: '러블리 멜로디 프린세스 블루', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'blue', designGroup: 'ラブリーメロディプリンセス', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[100,149,237], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_5', nameJp: 'ステンドグラスみるき', nameKr: '스테인드글라스 미루키', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'white', designGroup: 'ステンドグラス', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[245,245,245], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_6', nameJp: 'ミラクルベアれもん', nameKr: '미라클 베어 레몬', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: 'ミラクルベア', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,215,0], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_7', nameJp: 'エンジェルバブルイエロー', nameKr: '엔젤 버블 옐로우', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: 'エンジェルバブル', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,255,224], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_8', nameJp: 'アップルティーパーティー', nameKr: '애플 티 파티', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'red', designGroup: 'ティーパーティー', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[220,20,60], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_9', nameJp: 'コスメティックフラワー', nameKr: '코스메틱 플라워', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: 'コスメティック', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,192,203], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_10', nameJp: 'フローラルバタフライ', nameKr: '플로럴 버터플라이', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'purple', designGroup: 'フローラルバタフライ', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[221,160,221], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_11', nameJp: 'ミラクルユニコーン', nameKr: '미라클 유니콘', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'purple', designGroup: 'ミラクルユニコーン', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[186,85,211], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_12', nameJp: 'フレッシュフェアリー', nameKr: '프레시 페어리', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'green', designGroup: 'フレッシュフェアリー', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[144,238,144], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_13', nameJp: 'スプラッシュマーメイド', nameKr: '스플래시 머메이드', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'blue', designGroup: 'マーメイド', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[0,191,255], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_14', nameJp: 'ナイトドリーム', nameKr: '나이트 드림', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'black', designGroup: 'ナイトドリーム', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[25,25,112], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_15', nameJp: 'ワンダーランドブルー', nameKr: '원더랜드 블루', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'blue', designGroup: 'ワンダーランド', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[70,130,180], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_16', nameJp: 'サンシャインエレメンツ', nameKr: '선샤인 엘리멘츠', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '엘리멘츠', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,215,0], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_17', nameJp: 'リバティーサンシャイン', nameKr: '리버티 선샤인', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '리버티', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[240,230,140], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_18', nameJp: 'シャイニングディーバプリンセス', nameKr: '샤이ニング 디바 프린세스', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: 'シャイニングディーバ', mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,105,180], layoutVec:[128,128,128,128,128,128,128,128,128] }
+          { id: 'p_10_1', nameJp: 'サンキューフォーザワッチャプリマジフォーエバー', nameKr: '샌큐 포 더 왓차 프리마지 포에버', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: '샌큐 포 더 왓차', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,182,193], layoutVec:[128,128,128,128,128,128,128,128,128] },
+          { id: 'p_10_2', nameJp: 'スマイルエレメンツサンシャイン', nameKr: '스마일 엘리멘츠 선シャ인', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '스마일 엘리멘츠', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,235,59], layoutVec:[128,128,128,128,128,128,128,128,128] },
+          { id: 'p_10_3', nameJp: 'きらめきのプリンセスミッドナイト', nameKr: '반짝임의 프린세스 미드나이트', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'purple', designGroup: 'きらめきのプリンセス', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[147,112,219], layoutVec:[128,128,128,128,128,128,128,128,128] },
+          { id: 'p_10_4', nameJp: 'ラブリーメロディプリンセスブルー', nameKr: '러블리 멜로디 프린세스 블루', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'blue', designGroup: 'ラブリーメロディプリンセス', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[100,149,237], layoutVec:[128,128,128,128,128,128,128,128,128] },
+          { id: 'p_10_5', nameJp: 'ステンドグラスみるき', nameKr: '스테인드글라스 미루키', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'white', designGroup: 'ステンドグラス', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[245,245,245], layoutVec:[128,128,128,128,128,128,128,128,128] }
         ];
         saveCodyData();
       }
+      updateStats();
     }
 
     function saveCodyData() {
       localStorage.setItem('aipri_cody_list', JSON.stringify(codyList));
+      updateStats();
+    }
+
+    function updateStats() {
+      const total = codyList.length;
+      const owned = codyList.filter(c => c.isOwned).length;
+      const rate = total > 0 ? Math.round((owned / total) * 100) : 0;
+
+      document.getElementById('totalCount').innerText = total;
+      document.getElementById('ownedCount').innerText = owned;
+      document.getElementById('collectionRate').innerText = rate;
+      document.getElementById('progressBar').style.width = `${rate}%`;
     }
 
     function renderFilters() {
@@ -680,6 +683,19 @@
       `).join('');
     }
 
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      ['ALL', 'FAV', 'OWNED', 'UNOWNED'].forEach(m => {
+        const btn = document.getElementById(`vTab_${m}`);
+        if (m === mode) {
+          btn.className = "px-3 py-1.5 rounded-2xl text-xs font-bold bg-pink-500 text-white shadow-sm";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50";
+        }
+      });
+      applyFilters();
+    }
+
     function setMainCategory(catKey) {
       currentMainCat = catKey;
       currentSubCat = '전체';
@@ -703,9 +719,17 @@
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
       let filtered = codyList.filter(item => {
+        // View Mode Filter
+        if (currentViewMode === 'FAV' && !item.isFav) return false;
+        if (currentViewMode === 'OWNED' && !item.isOwned) return false;
+        if (currentViewMode === 'UNOWNED' && item.isOwned) return false;
+
+        // Category Filter
         if (currentMainCat !== 'ALL' && item.mainCat !== currentMainCat) return false;
         if (currentSubCat !== '전체' && item.subCat !== currentSubCat) return false;
         if (currentColor !== 'ALL' && item.color !== currentColor) return false;
+
+        // Text Search
         if (query) {
           const nameKr = (item.nameKr || '').toLowerCase();
           const nameJp = (item.nameJp || '').toLowerCase();
@@ -744,6 +768,26 @@
       return cDist + (lDist * 0.5);
     }
 
+    function toggleFav(id, event) {
+      event.stopPropagation();
+      const item = codyList.find(c => c.id === id);
+      if (item) {
+        item.isFav = !item.isFav;
+        saveCodyData();
+        applyFilters();
+      }
+    }
+
+    function toggleOwned(id, event) {
+      event.stopPropagation();
+      const item = codyList.find(c => c.id === id);
+      if (item) {
+        item.isOwned = !item.isOwned;
+        saveCodyData();
+        applyFilters();
+      }
+    }
+
     function renderCodyGrid(items) {
       const grid = document.getElementById('codyGrid');
       const emptyState = document.getElementById('emptyState');
@@ -762,25 +806,42 @@
 
         return `
           <div onclick="openDetailModal('${item.id}')"
-            class="glass-card rounded-2xl overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between border border-pink-100">
-            <div>
+            class="glass-card rounded-2xl overflow-hidden hover:shadow-xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between border ${item.isOwned ? 'border-pink-300 ring-2 ring-pink-200' : 'border-slate-200 opacity-90'}">
+            
+            <div class="relative">
               <div class="h-44 bg-slate-50 relative flex items-center justify-center p-2 overflow-hidden">
                 ${item.mainImg 
                   ? `<img src="${item.mainImg}" class="w-full h-full object-contain">`
                   : `<i data-lucide="sparkles" class="w-10 h-10 text-pink-200"></i>`
                 }
+                
+                <!-- BADGES -->
                 <span class="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${colorObj.bg} ${colorObj.text} shadow-sm">
                   ${colorObj.name}
                 </span>
+
                 ${hasQrCount > 0 ? `
                   <span class="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-purple-600 text-white flex items-center gap-1 shadow-sm">
                     <i data-lucide="qr-code" class="w-3 h-3"></i> ${hasQrCount}
                   </span>
                 ` : ''}
+
+                <!-- FAVORITE TOGGLE BUTTON -->
+                <button onclick="toggleFav('${item.id}', event)" class="absolute bottom-2 right-2 p-1.5 bg-white/80 backdrop-blur rounded-full shadow hover:scale-110 transition">
+                  <i data-lucide="heart" class="w-4 h-4 ${item.isFav ? 'fill-red-500 text-red-500' : 'text-slate-400'}"></i>
+                </button>
               </div>
-              
+
+              <!-- OWNED CHECK INDICATOR BANNER -->
+              <div class="px-3 py-1 bg-slate-50 border-t border-b border-slate-100 flex items-center justify-between">
+                <button onclick="toggleOwned('${item.id}', event)" class="flex items-center gap-1.5 text-xs font-bold ${item.isOwned ? 'text-pink-600' : 'text-slate-400'} hover:opacity-80">
+                  <i data-lucide="${item.isOwned ? 'check-circle-2' : 'circle'}" class="w-4 h-4 ${item.isOwned ? 'text-pink-500' : 'text-slate-300'}"></i>
+                  <span>${item.isOwned ? '보유 중' : '미획득'}</span>
+                </button>
+              </div>
+
               <div class="p-3">
-                <div class="text-[10px] font-bold text-purple-600">
+                <div class="text-[10px] font-bold text-purple-600 truncate">
                   ${CATEGORIES[item.mainCat] || ''} • ${item.subCat || ''}
                 </div>
                 <h4 class="text-xs font-black text-slate-800 truncate">${item.nameKr}</h4>
@@ -904,6 +965,7 @@
           document.getElementById('subCatSelect').value = item.subCat;
           document.getElementById('colorSelect').value = item.color;
           document.getElementById('designGroup').value = item.designGroup || '';
+          document.getElementById('isOwnedCheck').checked = !!item.isOwned;
 
           tempMainImg = item.mainImg;
           if (tempMainImg) {
@@ -1005,11 +1067,12 @@
       const subCat = document.getElementById('subCatSelect').value;
       const color = document.getElementById('colorSelect').value;
       const designGroup = document.getElementById('designGroup').value;
+      const isOwned = document.getElementById('isOwnedCheck').checked;
 
       if (!editId) {
         const duplicate = codyList.find(c => c.nameJp === nameJp || c.nameKr === nameKr);
         if (duplicate) {
-          const overwrite = confirm(`⚠️ 이미 등록된 코디 이름입니다!\n\n기존 코디: [${duplicate.nameKr} (${duplicate.nameJp})]\n\n이 코디로 덮어쓰시겠습니까?`);
+          const overwrite = confirm(`⚠️ 이미 등록된 코디 이름입니다!\n\n기존 코디: [${duplicate.nameKr} (${duplicate.nameJp})]\n\n덮어쓰시겠습니까?`);
           if (!overwrite) return;
           codyList = codyList.filter(c => c.id !== duplicate.id);
         }
@@ -1036,7 +1099,7 @@
           if (idx !== -1) {
             codyList[idx] = {
               ...codyList[idx],
-              nameJp, nameKr, mainCat, subCat, color, designGroup,
+              nameJp, nameKr, mainCat, subCat, color, designGroup, isOwned,
               mainImg: tempMainImg,
               qrs: { ...tempQrStore },
               colorVec, layoutVec
@@ -1045,7 +1108,8 @@
         } else {
           const newCody = {
             id: 'cody_' + Date.now(),
-            nameJp, nameKr, mainCat, subCat, color, designGroup,
+            nameJp, nameKr, mainCat, subCat, color, designGroup, isOwned,
+            isFav: false,
             mainImg: tempMainImg,
             qrs: { ...tempQrStore },
             colorVec, layoutVec
@@ -1121,7 +1185,7 @@
           <div class="h-64 bg-slate-50 rounded-2xl p-2 flex items-center justify-center overflow-hidden border">
             ${item.mainImg 
               ? `<img src="${item.mainImg}" class="h-full w-full object-contain">`
-              : `<p class="text-xs text-slate-400">등록된 코디 대표 사진이 없습니다.</p>`
+              : `<p class="text-xs text-slate-400">등록된 대표 사진이 없습니다.</p>`
             }
           </div>
 
@@ -1201,6 +1265,13 @@
         saveCodyData();
         applyFilters();
         closeDetailModal();
+      }
+    }
+
+    function resetAllData() {
+      if (confirm("⚠️ 저장되어 있는 모든 코디 데이터를 삭제하고 초기 상태로 되돌리시겠습니까?\n(이 작업은 복구할 수 없습니다)")) {
+        localStorage.removeItem('aipri_cody_list');
+        location.reload();
       }
     }
 
