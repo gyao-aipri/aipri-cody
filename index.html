@@ -169,7 +169,7 @@
               <input type="text" id="jpTranslateInput" placeholder="예: フワフワキャットレッド / にゃんにゃん"
                 class="flex-1 px-3 py-1 bg-white rounded-xl border border-purple-200 text-xs focus:outline-none jp-font">
               <button onclick="runQuickTranslate()" class="px-3 py-1 bg-purple-500 text-white rounded-xl text-xs font-bold hover:bg-purple-600 transition">
-                번역
+                변환
               </button>
             </div>
             <div id="translateResult" class="text-xs font-bold text-pink-600 mt-1 min-h-[16px]"></div>
@@ -300,7 +300,7 @@
         <!-- MAIN IMAGE -->
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="block text-xs font-bold text-slate-600">대표 사진 (클릭 / Ctrl+V 붙여넣기)</label>
+            <label class="block text-xs font-bold text-slate-600">대표 사진 (파일 선택 또는 Ctrl+V 붙여넣기)</label>
             <button type="button" id="removeMainImgBtn" onclick="removeMainImg()" class="text-[11px] text-red-500 font-bold hover:underline hidden">사진 삭제</button>
           </div>
           <input type="file" id="codyImgInput" accept="image/*" onchange="previewUploadImg(event)"
@@ -319,7 +319,7 @@
               <span class="text-[11px] font-bold text-pink-600 block mb-1">전체</span>
               <input type="file" id="qr_all_input" accept="image/*" onchange="handleQrUpload(event, 'all')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_all_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-pink-100">업로드/Ctrl+V</button>
+                <button type="button" onclick="document.getElementById('qr_all_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-pink-100">선택</button>
                 <button type="button" id="qr_all_del" onclick="removeQr('all')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
               <img id="qr_all_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
@@ -329,7 +329,7 @@
               <span class="text-[11px] font-bold text-slate-600 block mb-1">악세</span>
               <input type="file" id="qr_acc_input" accept="image/*" onchange="handleQrUpload(event, 'acc')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_acc_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
+                <button type="button" onclick="document.getElementById('qr_acc_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">선택</button>
                 <button type="button" id="qr_acc_del" onclick="removeQr('acc')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
               <img id="qr_acc_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
@@ -339,7 +339,7 @@
               <span class="text-[11px] font-bold text-slate-600 block mb-1">상의</span>
               <input type="file" id="qr_top_input" accept="image/*" onchange="handleQrUpload(event, 'top')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_top_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
+                <button type="button" onclick="document.getElementById('qr_top_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">선택</button>
                 <button type="button" id="qr_top_del" onclick="removeQr('top')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
               <img id="qr_top_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
@@ -349,7 +349,7 @@
               <span class="text-[11px] font-bold text-slate-600 block mb-1">하의</span>
               <input type="file" id="qr_bottom_input" accept="image/*" onchange="handleQrUpload(event, 'bottom')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_bottom_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
+                <button type="button" onclick="document.getElementById('qr_bottom_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">선택</button>
                 <button type="button" id="qr_bottom_del" onclick="removeQr('bottom')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
               <img id="qr_bottom_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
@@ -359,7 +359,7 @@
               <span class="text-[11px] font-bold text-slate-600 block mb-1">슈즈</span>
               <input type="file" id="qr_shoes_input" accept="image/*" onchange="handleQrUpload(event, 'shoes')" class="hidden">
               <div class="space-y-1">
-                <button type="button" onclick="document.getElementById('qr_shoes_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">업로드/Ctrl+V</button>
+                <button type="button" onclick="document.getElementById('qr_shoes_input').click()" class="w-full py-1 bg-white border text-[10px] rounded-lg font-bold hover:bg-slate-100">선택</button>
                 <button type="button" id="qr_shoes_del" onclick="removeQr('shoes')" class="w-full py-0.5 bg-red-50 text-red-500 text-[9px] font-bold rounded hidden">삭제</button>
               </div>
               <img id="qr_shoes_preview" class="w-10 h-10 mx-auto mt-1 object-cover rounded hidden border">
@@ -435,8 +435,8 @@
         'フラワー': '플라워', 'カフェ': '카페', 'ピンク': '핑크', 'ブルー': '블루',
         'イエロー': '옐로우', 'パープル': '퍼플', 'グリーン': '그린', 'ホワイト': '화이트',
         'ブラック': '블랙', 'レッド': '레드', 'ドレス': '드레스', 'スタイル': '스타일',
-        'リボン': '리본', 'チェック': '체크', 'ハート': '하特', 'スター': '스타',
-        'クラウン': '크라운', 'プリンセス': '프リンセス', 'ナイト': '나이트',
+        'リボン': '리본', 'チェック': '체크', 'ハート': '하트', 'スター': '스타',
+        'クラウン': '크라운', 'プリンセス': '프린세스', 'ナイト': '나이트',
         'ミルキー': '밀키', 'スイート': '스위트', 'スウィート': '스위트',
         'キャット': '캣', 'ベア': '베어', 'ローズ': '로즈', 'フラミンゴ': '플라밍고',
         'ゴシック': '고딕', 'エンジェル': '엔젤', 'デビル': '데빌', 'ふわふわ': '후와후와',
@@ -478,7 +478,7 @@
         'ピャ': '피야', 'ピュ': '퓨', 'ピョ': '표', 'ティ': '티', 'ディ': '디', 'デュ': '듀',
         'ファ': '파', 'フィ': '피', 'フェ': '페', 'フォ': '포', 'ウィ': '위', 'ウェ': '웨',
         'ウォ': '워', 'チェ': '체', 'シェ': '셰', 'ジェ': '제', 'ア': '아', 'イ': '이',
-        'ウ': '우', 'エ': '에', 'オ': 'オ', 'カ': '카', 'キ': '키', 'ク': '쿠', 'ケ': '케',
+        'ウ': '우', 'エ': '에', 'オ': '오', 'カ': '카', 'キ': '키', 'ク': '쿠', 'ケ': '케',
         'コ': '코', 'サ': '사', 'シ': '시', 'ス': '스', 'セ': '세', 'ソ': '소', 'タ': '타',
         'チ': '치', 'ツ': '츠', 'テ': '테', 'ト': '토', 'ナ': '나', 'ニ': '니', 'ヌ': '누',
         'ネ': '네', 'ノ': '노', 'ハ': '하', 'ヒ': '히', 'フ': '후', 'ヘ': '헤', 'ホ': '호',
@@ -520,7 +520,7 @@
     let tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
     let tempMainImg = null;
 
-    // FAST INSTANT PASTE (Ctrl+V) & ASYNC PREVIEW
+    // ROBUST PASTE LISTENER FOR MODAL & MAIN SCREEN
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData && e.clipboardData.items;
       if (!items) return;
@@ -530,16 +530,16 @@
           const file = items[i].getAsFile();
           if (file) {
             const isAddModalOpen = !document.getElementById('addModal').classList.contains('hidden');
-            if (isAddModalOpen) {
-              processImageFile(file, (dataUrl) => {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+              const dataUrl = evt.target.result;
+              if (isAddModalOpen) {
                 tempMainImg = dataUrl;
                 const prev = document.getElementById('codyImgPreview');
                 prev.src = tempMainImg;
                 prev.classList.remove('hidden');
                 document.getElementById('removeMainImgBtn').classList.remove('hidden');
-              });
-            } else {
-              processImageFile(file, (dataUrl) => {
+              } else {
                 const img = new Image();
                 img.onload = () => {
                   searchImgColorVec = extractAverageRGB(img);
@@ -552,20 +552,14 @@
                   applyFilters();
                 };
                 img.src = dataUrl;
-              });
-            }
+              }
+            };
+            reader.readAsDataURL(file);
           }
         }
       }
     });
 
-    function processImageFile(file, callback) {
-      const reader = new FileReader();
-      reader.onload = (e) => callback(e.target.result);
-      reader.readAsDataURL(file);
-    }
-
-    // INITIALIZATION
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       initLockScreen();
@@ -615,14 +609,15 @@
     function loadCodyData() {
       const data = localStorage.getItem('aipri_cody_list');
       if (data) {
-        codyList = JSON.parse(data);
+        try {
+          codyList = JSON.parse(data);
+        } catch(err) {
+          codyList = [];
+        }
       } else {
         codyList = [
           { id: 'p_10_1', nameJp: 'サンキューフォーザワッチャプリマジフォーエバー', nameKr: '샌큐 포 더 왓차 프리마지 포에버', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'pink', designGroup: '샌큐 포 더 왓차', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,182,193], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_2', nameJp: 'スマイルエレメンツサンシャイン', nameKr: '스마일 엘리멘츠 선シャ인', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '스마일 엘리멘츠', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,235,59], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_3', nameJp: 'きらめきのプリンセスミッドナイト', nameKr: '반짝임의 프린세스 미드나이트', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'purple', designGroup: 'きらめきのプリンセス', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[147,112,219], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_4', nameJp: 'ラブリーメロディプリンセスブルー', nameKr: '러블리 멜로디 프린세스 블루', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'blue', designGroup: 'ラブリーメロディプリンセス', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[100,149,237], layoutVec:[128,128,128,128,128,128,128,128,128] },
-          { id: 'p_10_5', nameJp: 'ステンドグラスみるき', nameKr: '스테인드글라스 미루키', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'white', designGroup: 'ステンドグラス', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[245,245,245], layoutVec:[128,128,128,128,128,128,128,128,128] }
+          { id: 'p_10_2', nameJp: 'スマイルエレメンツサンシャイン', nameKr: '스마일 엘리멘츠 선샤인', mainCat: 'MAGIC', subCat: '스튜디오 10장', color: 'yellow', designGroup: '스마일 엘리멘츠', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,235,59], layoutVec:[128,128,128,128,128,128,128,128,128] }
         ];
         saveCodyData();
       }
@@ -860,7 +855,9 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      processImageFile(file, (dataUrl) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const dataUrl = evt.target.result;
         const img = new Image();
         img.onload = () => {
           searchImgColorVec = extractAverageRGB(img);
@@ -873,7 +870,8 @@
           applyFilters();
         };
         img.src = dataUrl;
-      });
+      };
+      reader.readAsDataURL(file);
     }
 
     function clearSearchImage() {
@@ -930,7 +928,6 @@
       }
     }
 
-    // OPEN MODAL WITH PROPER TEMP IMAGE PRE-POPULATION
     function openAddModal(editId = null) {
       tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
       tempMainImg = null;
@@ -989,6 +986,7 @@
         document.getElementById('modalTitle').innerText = '새 코디 등록';
         document.getElementById('codyForm').reset();
         document.getElementById('editId').value = '';
+        document.getElementById('isOwnedCheck').checked = false;
         document.getElementById('codyImgPreview').classList.add('hidden');
         document.getElementById('removeMainImgBtn').classList.add('hidden');
         ['all', 'acc', 'top', 'bottom', 'shoes'].forEach(key => {
@@ -1015,12 +1013,15 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      processImageFile(file, (dataUrl) => {
-        tempMainImg = dataUrl;
-        document.getElementById('codyImgPreview').src = tempMainImg;
-        document.getElementById('codyImgPreview').classList.remove('hidden');
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        tempMainImg = evt.target.result;
+        const prev = document.getElementById('codyImgPreview');
+        prev.src = tempMainImg;
+        prev.classList.remove('hidden');
         document.getElementById('removeMainImgBtn').classList.remove('hidden');
-      });
+      };
+      reader.readAsDataURL(file);
     }
 
     function removeMainImg() {
@@ -1034,14 +1035,16 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      processImageFile(file, (dataUrl) => {
-        tempQrStore[key] = dataUrl;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        tempQrStore[key] = evt.target.result;
         const prev = document.getElementById(`qr_${key}_preview`);
         const delBtn = document.getElementById(`qr_${key}_del`);
-        prev.src = dataUrl;
+        prev.src = tempQrStore[key];
         prev.classList.remove('hidden');
         delBtn.classList.remove('hidden');
-      });
+      };
+      reader.readAsDataURL(file);
     }
 
     function removeQr(key) {
@@ -1051,7 +1054,6 @@
       document.getElementById(`qr_${key}_del`).classList.add('hidden');
     }
 
-    // INSTANT SAFE ASYNC SAVE LOGIC
     async function saveCody(e) {
       e.preventDefault();
 
@@ -1067,7 +1069,6 @@
       let colorVec = [200, 200, 200];
       let layoutVec = [128,128,128, 128,128,128, 128,128,128];
 
-      // Extract image vectors asynchronously if image exists
       if (tempMainImg) {
         await new Promise((resolve) => {
           const img = new Image();
@@ -1107,6 +1108,7 @@
       saveCodyData();
       applyFilters();
       closeAddModal();
+      alert('성공적으로 저장되었습니다!');
     }
 
     function findAutomaticRecolors(targetItem) {
