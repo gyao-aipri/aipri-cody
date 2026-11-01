@@ -11,6 +11,10 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 
+  <!-- FIREBASE SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       font-family: 'Noto Sans KR', sans-serif;
@@ -74,7 +78,7 @@
         </div>
         <div>
           <h1 class="text-2xl font-black tracking-tight text-pink-600">아이프리 코디 도감</h1>
-          <p class="text-xs text-slate-500 font-medium">나만의 Private 코디 매니저 & 컬렉션 도감</p>
+          <p class="text-xs text-slate-500 font-medium">실시간 클라우드 자동 동기화 적용 완료 ✨</p>
         </div>
       </div>
 
@@ -394,6 +398,22 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    // 본인의 Firebase 설정값 적용 완료
+    const firebaseConfig = {
+      apiKey: "AIzaSyDthLvRR9y7kjeWVIshVCQjumHGlh92SX0",
+      authDomain: "aipri-cody.firebaseapp.com",
+      projectId: "aipri-cody",
+      storageBucket: "aipri-cody.firebasestorage.app",
+      messagingSenderId: "898493764670",
+      appId: "1:898493764670:web:5dc9ca46bbe7bd1f382d6f",
+      measurementId: "G-PM18S581KY"
+    };
+
+    // Firebase Initialize
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const codiesCollection = db.collection('codies');
+
     const CATEGORIES = {
       'ALL': '전체',
       'HIMI': '히미프리',
@@ -428,73 +448,13 @@
       { id: 'red', name: '레드', bg: 'bg-red-500', text: 'text-white' }
     ];
 
-    // --- INDEXEDDB STORAGE SYSTEM ---
-    let db = null;
-
-    function initDatabase() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('AiPriCodyDB', 2);
-        request.onupgradeneeded = (e) => {
-          const dbRef = e.target.result;
-          if (!dbRef.objectStoreNames.contains('codies')) {
-            dbRef.createObjectStore('codies', { keyPath: 'id' });
-          }
-        };
-        request.onsuccess = (e) => {
-          db = e.target.result;
-          resolve();
-        };
-        request.onerror = (e) => reject(e);
-      });
-    }
-
-    function getAllCodiesDB() {
-      return new Promise((resolve) => {
-        if (!db) return resolve([]);
-        const tx = db.transaction('codies', 'readonly');
-        const store = tx.objectStore('codies');
-        const req = store.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => resolve([]);
-      });
-    }
-
-    function saveCodyDB(item) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction('codies', 'readwrite');
-        const store = tx.objectStore('codies');
-        store.put(item);
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e);
-      });
-    }
-
-    function deleteCodyDB(id) {
-      return new Promise((resolve) => {
-        const tx = db.transaction('codies', 'readwrite');
-        const store = tx.objectStore('codies');
-        store.delete(id);
-        tx.oncomplete = () => resolve();
-      });
-    }
-
-    function clearDatabaseDB() {
-      return new Promise((resolve) => {
-        const tx = db.transaction('codies', 'readwrite');
-        const store = tx.objectStore('codies');
-        store.clear();
-        tx.oncomplete = () => resolve();
-      });
-    }
-
-    // --- IMPROVED TRANSLATION LOGIC (NO ISOLATED '응') ---
     function translateJpToKr(text) {
       if (!text) return '';
       const wordMap = {
         'うさぎ': '토끼', 'ウサギ': '토끼',
         'ぬいぐるみ': '인형',
         'オレンジ': '주황색',
-        'バズリウム': '바ズ리ウム',
+        'バズリウム': '바즈리ウム',
         'ラビット': '래빗',
         'くらげ': '해파리', 'クラゲ': '해파리',
         'サンキュー': '샌큐', 'フォーザ': '포 더', 'フォーエバー': '포에버',
@@ -508,12 +468,12 @@
         'クラウン': '크라운', 'プリンセス': '프린세스', 'ナイト': '나이트',
         'ミルキー': '밀키', 'スイート': '스위트', 'スウィート': '스위트',
         'キャット': '캣', 'ベア': '베어', 'ローズ': '로즈', 'フラミンゴ': '플라밍고',
-        'ゴシック': '고딕', 'エンジェル': 'エンジェル', 'デビル': '데빌', 'ふわふわ': '후와후와',
+        'ゴシック': '고딕', 'エンジェル': '엔젤', 'デビル': '데빌', 'ふわふわ': '후와후와',
         'キラキラ': '반짝반짝', 'もこもこ': '복실복실',
         'エレメンツ': '엘리멘츠', 'サンシャイン': '선샤인', 'きらめきの': '반짝임의',
         'ミッドナイト': '미드나이트', 'ラブリー': '러블리', 'メロディ': '멜로디',
         'ステンドグラス': '스테인드글라스', 'みるき': '미루키', 'ミラクル': '미라클',
-        'れもん': '레몬', 'エンジェルバブル': '엔젤 버블', 'アップル': '애플',
+        'れもん': '레몬', 'エンジェルバブル': '엔젤 버ブル', 'アップル': '애플',
         'ティーパーティー': '티 파티', 'コスメティック': '코스메틱', 'フローラル': '플로럴'
       };
 
@@ -526,8 +486,8 @@
         'あ':'ア','い':'イ','う':'ウ','え':'エ','お':'オ','か':'カ','き':'キ','く':'ク','け':'ケ','こ':'コ',
         'さ':'サ','し':'シ','す':'ス','せ':'セ','そ':'ソ','た':'タ','ち':'チ','つ':'ツ','て':'テ','と':'ト',
         'な':'ナ','に':'ニ','ぬ':'ヌ','ね':'ネ','の':'ノ','は':'ハ','ひ':'ヒ','ふ':'フ','へ':'ヘ','ほ':'ホ',
-        'ま':'マ','み':'ミ','む':'ム','め':'メ','も':'モ','や':'ヤ','ゆ':'ユ','よ':'ヨ','ら':'ラ','り':'リ',
-        'る':'ル','れ':'レ','ろ':'ロ','わ':'ワ','を':'ヲ','ん':'ン','が':'ガ','ぎ':'ギ','ぐ':'グ','げ':'ゲ',
+        'ま':'マ','み':'ミ','む':'ム','め':'메','も':'モ','や':'ヤ','ゆ':'ユ','よ':'ヨ','ら':'ラ','り':'リ',
+        'る':'ル','れ':'レ','ろ':'ロ','わ':'ワ','를':'ヲ','ん':'ン','が':'ガ','ぎ':'ギ','ぐ':'グ','げ':'ゲ',
         'ご':'ゴ','ざ':'ザ','じ':'ジ','ず':'ズ','ぜ':'ゼ','ぞ':'ゾ','だ':'ダ','ぢ':'ヂ','づ':'ヅ','で':'デ',
         'ど':'ド','ば':'バ','び':'ビ','ぶ':'ブ','べ':'ベ','ぼ':'ボ','ぱ':'パ','ぴ':'ピ','ぷ':'プ','ぺ':'ペ',
         'ぽ':'ポ','っ':'ッ','ゃ':'ャ','ゅ':'ュ','ょ':'ョ'
@@ -577,7 +537,6 @@
       return output.replace(/\s+/g, ' ').trim();
     }
 
-    // STATE VARIABLES
     let codyList = [];
     let currentViewMode = 'ALL';
     let currentMainCat = 'ALL';
@@ -589,7 +548,6 @@
     let tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
     let tempMainImg = null;
 
-    // IMAGE COMPRESSOR
     function compressImageFile(file, maxWidth, maxHeight, callback) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -620,7 +578,6 @@
       reader.readAsDataURL(file);
     }
 
-    // PASTE LISTENER (Ctrl+V)
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData && e.clipboardData.items;
       if (!items) return;
@@ -659,9 +616,8 @@
       }
     });
 
-    window.addEventListener('DOMContentLoaded', async () => {
+    window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
-      await initDatabase();
       initLockScreen();
       document.getElementById('lockForm').addEventListener('submit', handleAuth);
     });
@@ -690,12 +646,24 @@
       }
     }
 
-    async function unlockApp() {
+    function unlockApp() {
       document.getElementById('lockModal').classList.add('hidden');
       document.getElementById('appContainer').classList.remove('hidden');
-      await loadCodyData();
+      setupRealtimeSync();
       renderFilters();
-      applyFilters();
+    }
+
+    function setupRealtimeSync() {
+      codiesCollection.onSnapshot((snapshot) => {
+        codyList = [];
+        snapshot.forEach((doc) => {
+          codyList.push({ id: doc.id, ...doc.data() });
+        });
+        updateStats();
+        applyFilters();
+      }, (error) => {
+        console.error("Firestore sync error:", error);
+      });
     }
 
     function changePassword() {
@@ -704,35 +672,6 @@
         localStorage.setItem('aipri_pass', newPass);
         alert("비밀번호가 변경되었습니다.");
       }
-    }
-
-    async function loadCodyData() {
-      codyList = await getAllCodiesDB();
-
-      if (codyList.length === 0) {
-        const oldData = localStorage.getItem('aipri_cody_list');
-        if (oldData) {
-          try {
-            const parsed = JSON.parse(oldData);
-            for (let item of parsed) {
-              await saveCodyDB(item);
-            }
-            codyList = parsed;
-          } catch(e) {}
-        }
-      }
-
-      if (codyList.length === 0) {
-        const defaults = [
-          { id: 'p_10_1', nameJp: 'うさぎぬいぐるみオレンジ', nameKr: '주황색 토끼 인형', mainCat: 'SPEC_HIMI', subCat: '스튜디오', color: 'orange', designGroup: '토끼 인형', isFav: false, isOwned: false, mainImg: '', qrs: {all:null,acc:null,top:null,bottom:null,shoes:null}, colorVec:[255,140,0], layoutVec:[128,128,128,128,128,128,128,128,128] }
-        ];
-        for (let item of defaults) {
-          await saveCodyDB(item);
-        }
-        codyList = defaults;
-      }
-
-      updateStats();
     }
 
     function updateStats() {
@@ -869,10 +808,7 @@
       event.stopPropagation();
       const item = codyList.find(c => c.id === id);
       if (item) {
-        item.isFav = !item.isFav;
-        await saveCodyDB(item);
-        updateStats();
-        applyFilters();
+        await codiesCollection.doc(id).update({ isFav: !item.isFav });
       }
     }
 
@@ -880,10 +816,7 @@
       event.stopPropagation();
       const item = codyList.find(c => c.id === id);
       if (item) {
-        item.isOwned = !item.isOwned;
-        await saveCodyDB(item);
-        updateStats();
-        applyFilters();
+        await codiesCollection.doc(id).update({ isOwned: !item.isOwned });
       }
     }
 
@@ -1183,36 +1116,19 @@
         });
       }
 
-      let targetItem;
-      if (editId) {
-        const idx = codyList.findIndex(c => c.id === editId);
-        if (idx !== -1) {
-          codyList[idx] = {
-            ...codyList[idx],
-            nameJp, nameKr, mainCat, subCat, color, designGroup, isOwned,
-            mainImg: tempMainImg,
-            qrs: { ...tempQrStore },
-            colorVec, layoutVec
-          };
-          targetItem = codyList[idx];
-        }
-      } else {
-        targetItem = {
-          id: 'cody_' + Date.now(),
-          nameJp, nameKr, mainCat, subCat, color, designGroup, isOwned,
-          isFav: false,
-          mainImg: tempMainImg,
-          qrs: { ...tempQrStore },
-          colorVec, layoutVec
-        };
-        codyList.unshift(targetItem);
-      }
+      const docId = editId || ('cody_' + Date.now());
+      const codyData = {
+        nameJp, nameKr, mainCat, subCat, color, designGroup, isOwned,
+        isFav: editId ? (codyList.find(c => c.id === editId)?.isFav || false) : false,
+        mainImg: tempMainImg || '',
+        qrs: { ...tempQrStore },
+        colorVec, layoutVec,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
 
-      await saveCodyDB(targetItem);
-      updateStats();
-      applyFilters();
+      await codiesCollection.doc(docId).set(codyData, { merge: true });
       closeAddModal();
-      alert('성공적으로 저장되었습니다!');
+      alert('클라우드에 성공적으로 저장되었습니다!');
     }
 
     function findAutomaticRecolors(targetItem) {
@@ -1352,19 +1268,20 @@
 
     async function deleteCody(id) {
       if (confirm('이 코디를 정말로 삭제하시겠습니까?')) {
-        codyList = codyList.filter(c => c.id !== id);
-        await deleteCodyDB(id);
-        updateStats();
-        applyFilters();
+        await codiesCollection.doc(id).delete();
         closeDetailModal();
       }
     }
 
     async function resetAllData() {
-      if (confirm("⚠️ 저장되어 있는 모든 코디 데이터를 삭제하고 초기 상태로 되돌리시겠습니까?")) {
-        await clearDatabaseDB();
-        localStorage.removeItem('aipri_cody_list');
-        location.reload();
+      if (confirm("⚠️ 모든 클라우드 코디 데이터를 삭제하시겠습니까?")) {
+        const snapshot = await codiesCollection.get();
+        const batch = db.batch();
+        snapshot.docs.forEach((doc) => {
+          batch.delete(doc.ref);
+        });
+        await batch.commit();
+        alert("초기화되었습니다.");
       }
     }
 
@@ -1387,27 +1304,13 @@
         try {
           const imported = JSON.parse(evt.target.result);
           if (Array.isArray(imported)) {
-            const isAppend = confirm("기존 데이터에 추가하시겠습니까?\n\n[확인]: 기존 데이터 유지 + 새 코디 추가\n[취소]: 기존 데이터 삭제 후 교체");
-            
-            if (!isAppend) {
-              await clearDatabaseDB();
-              codyList = [];
-            }
-
-            const existingNames = new Set(codyList.map(c => c.nameJp));
             let addedCount = 0;
-
             for (let item of imported) {
-              if (!existingNames.has(item.nameJp)) {
-                codyList.push(item);
-                await saveCodyDB(item);
-                addedCount++;
-              }
+              const docId = item.id || ('cody_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4));
+              await codiesCollection.doc(docId).set(item, { merge: true });
+              addedCount++;
             }
-
-            alert(`총 ${addedCount}개의 코디가 성공적으로 저장되었습니다!`);
-            updateStats();
-            applyFilters();
+            alert(`총 ${addedCount}개의 코디가 성공적으로 클라우드에 업로드되었습니다!`);
           }
         } catch (err) {
           alert('올바르지 않은 JSON 파일 형식입니다.');
