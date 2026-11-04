@@ -40,6 +40,10 @@
       background: #f472b6;
       border-radius: 4px;
     }
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+    }
   </style>
 </head>
 <body class="min-h-screen text-slate-800 pb-12">
@@ -71,20 +75,23 @@
   <div id="appContainer" class="hidden max-w-6xl mx-auto px-4 pt-6">
 
     <!-- HEADER -->
-    <header class="glass-card rounded-3xl p-5 mb-6 shadow-md flex flex-wrap items-center justify-between gap-4">
+    <header class="glass-card rounded-3xl p-5 mb-6 shadow-md flex flex-wrap items-center justify-between gap-4 no-print">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 bg-gradient-to-tr from-pink-400 to-purple-400 text-white rounded-2xl flex items-center justify-center shadow-md">
           <i data-lucide="sparkles" class="w-7 h-7"></i>
         </div>
         <div>
           <h1 class="text-2xl font-black tracking-tight text-pink-600">아이프리 코디 도감</h1>
-          <p class="text-xs text-slate-500 font-medium">실시간 클라우드 자동 동기화 적용 완료 ✨</p>
+          <p class="text-xs text-slate-500 font-medium">실시간 클라우드 자동 동기화 & 맞춤형 기능 적용 완료 ✨</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
         <button onclick="openAddModal()" class="px-4 py-2.5 bg-pink-500 hover:bg-pink-600 text-white rounded-2xl text-sm font-bold shadow-md transition flex items-center gap-1.5">
           <i data-lucide="plus-circle" class="w-4 h-4"></i> 코디 등록
+        </button>
+        <button onclick="exportOwnedPdf()" title="보유 코디 QR제외 PDF 내보내기" class="px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl text-xs font-bold shadow-md transition flex items-center gap-1.5">
+          <i data-lucide="file-text" class="w-4 h-4"></i> 보유 코디 PDF
         </button>
         <button onclick="exportData()" title="데이터 내보내기" class="p-2.5 bg-purple-100 text-purple-600 hover:bg-purple-200 rounded-2xl text-sm font-bold transition">
           <i data-lucide="download" class="w-5 h-5"></i>
@@ -103,7 +110,7 @@
     </header>
 
     <!-- COLLECTION PROGRESS STATS BAR -->
-    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6">
+    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6 no-print">
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-2">
           <i data-lucide="trophy" class="w-5 h-5 text-amber-500"></i>
@@ -119,7 +126,7 @@
     </section>
 
     <!-- SEARCH & MATCHING SECTION -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 no-print">
       
       <!-- IMAGE SEARCH BOX -->
       <div class="glass-card rounded-3xl p-5 shadow-sm md:col-span-1 flex flex-col justify-between">
@@ -191,7 +198,7 @@
     </section>
 
     <!-- CATEGORY & COLLECTION STATE FILTER TABS -->
-    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-3">
+    <section class="glass-card rounded-3xl p-5 shadow-sm mb-6 space-y-3 no-print">
       <div>
         <div class="text-xs font-bold text-slate-500 mb-1.5">보기 모드</div>
         <div id="viewModeTabs" class="flex flex-wrap gap-2">
@@ -208,14 +215,14 @@
       </div>
 
       <div id="subCategoryWrapper" class="border-t border-pink-100 pt-3">
-        <div class="text-xs font-bold text-slate-500 mb-1.5">세부 시즌 / 탄</div>
+        <div class="text-xs font-bold text-slate-500 mb-1.5">세부 시즌 / 탄 (중복 필터 가능)</div>
         <div id="subCategoryTabs" class="flex flex-wrap gap-1.5"></div>
       </div>
     </section>
 
     <!-- CODY GRID RESULT -->
     <section>
-      <div class="flex items-center justify-between mb-4 px-2">
+      <div class="flex items-center justify-between mb-4 px-2 no-print">
         <h3 class="text-base font-bold text-slate-700 flex items-center gap-2">
           <i data-lucide="grid" class="w-4 h-4 text-pink-500"></i> 코디 목록 
           <span id="codyCount" class="text-xs bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full font-bold">0</span>
@@ -234,7 +241,7 @@
 
       <div id="codyGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
 
-      <div id="emptyState" class="hidden text-center py-16 bg-white/60 rounded-3xl border border-dashed border-pink-200">
+      <div id="emptyState" class="hidden text-center py-16 bg-white/60 rounded-3xl border border-dashed border-pink-200 no-print">
         <i data-lucide="ghost" class="w-12 h-12 text-pink-300 mx-auto mb-2"></i>
         <p class="text-sm font-bold text-slate-500">조건에 맞는 코디가 없습니다.</p>
         <p class="text-xs text-slate-400 mt-1">[+ 코디 등록] 버튼으로 나만의 코디를 추가해 보세요!</p>
@@ -276,19 +283,19 @@
           </div>
         </div>
 
-        <!-- CATEGORIES -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- CATEGORIES & MULTI SUB-CATEGORIES -->
+        <div class="space-y-3">
           <div>
             <label class="block text-xs font-bold text-slate-600 mb-1">대분류 소속</label>
-            <select id="mainCatSelect" onchange="updateSubCatDropdown()" required
+            <select id="mainCatSelect" onchange="renderModalSubCatCheckboxes()" required
               class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-600 mb-1">세부 시즌 / 탄</label>
-            <select id="subCatSelect" required
-              class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
-            </select>
+            <label class="block text-xs font-bold text-slate-600 mb-1">세부 시즌 / 탄 (중복 선택 가능)</label>
+            <div id="modalSubCatContainer" class="bg-slate-50 border border-slate-200 rounded-xl p-3 max-h-36 overflow-y-auto custom-scrollbar flex flex-wrap gap-2">
+              <!-- JS로 주입 -->
+            </div>
           </div>
         </div>
 
@@ -311,24 +318,45 @@
           </div>
         </div>
 
-        <!-- MAIN IMAGE -->
+        <!-- DESCRIPTION / MEMO FIELD -->
         <div>
-          <div class="flex justify-between items-center mb-1">
-            <label class="block text-xs font-bold text-slate-600">대표 사진 (파일 선택 또는 모달창 안에서 Ctrl+V 붙여넣기 가능)</label>
-            <button type="button" id="removeMainImgBtn" onclick="removeMainImg()" class="text-[11px] text-red-500 font-bold hover:underline hidden">사진 삭제</button>
+          <label class="block text-xs font-bold text-slate-600 mb-1">부가 설명 및 메모란 (선택)</label>
+          <input type="text" id="codyMemo" placeholder="예: 악세 없음 / 이벤트 한정 / 파츠 주의 등"
+            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-pink-400">
+        </div>
+
+        <!-- MAIN IMAGE & FRIEND CARD -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- MAIN IMAGE -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-slate-600">대표 사진 (클릭/Ctrl+V)</label>
+              <button type="button" id="removeMainImgBtn" onclick="removeMainImg()" class="text-[11px] text-red-500 font-bold hover:underline hidden">삭제</button>
+            </div>
+            <div id="mainImgBox" tabindex="0" onclick="setActiveImgTarget('main')" class="border-2 border-dashed border-pink-200 hover:border-pink-400 rounded-2xl p-2 text-center cursor-pointer min-h-[100px] flex items-center justify-center relative outline-none bg-pink-50/30">
+              <input type="file" id="codyImgInput" accept="image/*" onchange="previewUploadImg(event)" class="hidden">
+              <span id="mainImgPrompt" class="text-xs text-pink-500 font-semibold">사진 선택 또는 Ctrl+V</span>
+              <img id="codyImgPreview" class="h-24 mx-auto rounded-lg object-contain hidden">
+            </div>
           </div>
-          <input type="file" id="codyImgInput" accept="image/*" onchange="previewUploadImg(event)"
-            class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-600 hover:file:bg-pink-100">
-          <div class="mt-2 text-center">
-            <img id="codyImgPreview" class="h-28 mx-auto rounded-xl object-contain hidden border border-slate-200">
+
+          <!-- FRIEND CARD -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-bold text-purple-600">프렌즈 카드 사진 (선택/Ctrl+V)</label>
+              <button type="button" id="removeFriendCardBtn" onclick="removeFriendCard()" class="text-[11px] text-red-500 font-bold hover:underline hidden">삭제</button>
+            </div>
+            <div id="friendCardBox" tabindex="0" onclick="setActiveImgTarget('friend')" class="border-2 border-dashed border-purple-200 hover:border-purple-400 rounded-2xl p-2 text-center cursor-pointer min-h-[100px] flex items-center justify-center relative outline-none bg-purple-50/30">
+              <input type="file" id="friendCardInput" accept="image/*" onchange="previewFriendCard(event)" class="hidden">
+              <span id="friendCardPrompt" class="text-xs text-purple-500 font-semibold">프렌즈카드 선택 또는 Ctrl+V</span>
+              <img id="friendCardPreview" class="h-24 mx-auto rounded-lg object-contain hidden">
+            </div>
           </div>
         </div>
 
-        <!-- 5 QR CODES (클릭 후 Ctrl+V 지원) -->
+        <!-- 5 QR CODES -->
         <div class="border-t border-pink-100 pt-3">
-          <label class="block text-xs font-black text-purple-600 mb-1">부위별 QR 코드 등록 (선택 후 Ctrl+V 붙여넣기 또는 선택 버튼)</label>
-          <p class="text-[10px] text-slate-400 mb-2">💡 원하는 부위 박스를 클릭하여 선택(테두리 활성화)한 뒤 Ctrl+V를 누르면 바로 복사·붙여넣기 됩니다!</p>
-          
+          <label class="block text-xs font-black text-purple-600 mb-1">부위별 QR 코드 등록 (클릭 후 Ctrl+V 가능)</label>
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
             
             <div id="qrBox_all" tabindex="0" onclick="setActiveQrTarget('all')" class="bg-pink-50/50 p-2 rounded-xl border-2 border-pink-100 focus:border-pink-500 flex flex-col justify-between cursor-pointer outline-none transition">
@@ -398,7 +426,7 @@
   </div>
 
   <!-- DETAIL MODAL -->
-  <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
+  <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar p-6 shadow-2xl relative">
       <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
         <i data-lucide="x" class="w-6 h-6"></i>
@@ -436,13 +464,13 @@
     };
 
     const SUB_CATEGORIES = {
-      'HIMI': ['전체', '1탄', '2탄', '3탄', '4탄', '5탄', '6탄', '링 1탄', '링 2탄', '링 3탄', '링 4탄', '링 5탄', '링 6탄'],
-      'ONE': ['전체', '1탄', '2탄', '3탄', '4탄', '5탄', '6탄'],
-      'MAGIC': ['전체', '1장', '2장', '3장', '4장', '5장', '6장', '스튜디오 1・2장', '스튜디오 3・4장', '스튜디오 5・6장', '스튜디오 7・8장', '스튜디오 9장', '스튜디오 10장'],
-      'GUMI': ['전체', '히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
-      'MILFY': ['전체', '히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
-      'SPEC_HIMI': ['전체', '스페셜'],
-      'SPEC_ONE': ['전체', '스페셜']
+      'HIMI': ['1탄', '2탄', '3탄', '4탄', '5탄', '6탄', '링 1탄', '링 2탄', '링 3탄', '링 4탄', '링 5탄', '링 6탄'],
+      'ONE': ['1탄', '2탄', '3탄', '4탄', '5탄', '6탄'],
+      'MAGIC': ['1장', '2장', '3장', '4장', '5장', '6장', '스튜디오 1・2장', '스튜디오 3・4장', '스튜디오 5・6장', '스튜디오 7・8장', '스튜디오 9장', '스튜디오 10장'],
+      'GUMI': ['히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
+      'MILFY': ['히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
+      'SPEC_HIMI': ['스페셜'],
+      'SPEC_ONE': ['스페셜']
     };
 
     const COLORS = [
@@ -550,14 +578,20 @@
     let codyList = [];
     let currentViewMode = 'ALL';
     let currentMainCat = 'ALL';
-    let currentSubCat = '전체';
+    let activeSubCats = []; // 중복 선택된 세부 시즌 필터 목록
     let currentColor = 'ALL';
     let searchImgColorVec = null;
     let searchImgLayoutVec = null;
 
     let tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
     let tempMainImg = null;
-    let activeQrTarget = 'all'; // 현재 Ctrl+V를 받을 QR 부위 지정 (기본: 전체)
+    let tempFriendCard = null;
+    let activeImgTarget = 'main'; // 'main' 또는 'friend'
+    let activeQrTarget = 'all';
+
+    function setActiveImgTarget(target) {
+      activeImgTarget = target;
+    }
 
     function setActiveQrTarget(key) {
       activeQrTarget = key;
@@ -597,7 +631,7 @@
       reader.readAsDataURL(file);
     }
 
-    // 🌟 Ctrl+V 붙여넣기 이벤트 처리 (모달 열려있을 때 대표 사진 또는 활성화된 QR 부위에 쏙 들어가도록 연동)
+    // Ctrl+V 붙여넣기 글로벌 이벤트 (대표사진, 프렌즈카드, QR 부위 동적 대응)
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData && e.clipboardData.items;
       if (!items) return;
@@ -608,12 +642,10 @@
           if (file) {
             const isAddModalOpen = !document.getElementById('addModal').classList.contains('hidden');
             if (isAddModalOpen) {
-              // 사용자가 포커스한 요소가 input이나 textarea가 아닐 경우 또는 명시적으로 QR 칸을 누른 경우 체크
               const activeEl = document.activeElement;
               const isQrBoxFocused = activeEl && activeEl.id && activeEl.id.startsWith('qrBox_');
 
               if (isQrBoxFocused) {
-                // QR 부위에 붙여넣기
                 compressImageFile(file, 800, 800, (compressedUrl) => {
                   tempQrStore[activeQrTarget] = compressedUrl;
                   const prev = document.getElementById(`qr_${activeQrTarget}_preview`);
@@ -622,18 +654,26 @@
                   prev.classList.remove('hidden');
                   delBtn.classList.remove('hidden');
                 });
+              } else if (activeImgTarget === 'friend') {
+                compressImageFile(file, 1000, 1000, (compressedUrl) => {
+                  tempFriendCard = compressedUrl;
+                  const prev = document.getElementById('friendCardPreview');
+                  prev.src = tempFriendCard;
+                  prev.classList.remove('hidden');
+                  document.getElementById('friendCardPrompt').classList.add('hidden');
+                  document.getElementById('removeFriendCardBtn').classList.remove('hidden');
+                });
               } else {
-                // 기본 대표 사진에 붙여넣기
                 compressImageFile(file, 1200, 1200, (compressedUrl) => {
                   tempMainImg = compressedUrl;
                   const prev = document.getElementById('codyImgPreview');
                   prev.src = tempMainImg;
                   prev.classList.remove('hidden');
+                  document.getElementById('mainImgPrompt').classList.add('hidden');
                   document.getElementById('removeMainImgBtn').classList.remove('hidden');
                 });
               }
             } else {
-              // 메인 화면 검색용 이미지 붙여넣기
               compressImageFile(file, 600, 600, (compressedUrl) => {
                 const img = new Image();
                 img.onload = () => {
@@ -740,10 +780,11 @@
         </button>
       `).join('');
 
-      renderSubCategories();
+      renderSubCategoryCheckboxes();
     }
 
-    function renderSubCategories() {
+    // 메인 화면 세부 시즌 다중 선택 체크박스 렌더링
+    function renderSubCategoryCheckboxes() {
       const subCatContainer = document.getElementById('subCategoryTabs');
       if (currentMainCat === 'ALL') {
         document.getElementById('subCategoryWrapper').classList.add('hidden');
@@ -751,13 +792,26 @@
       }
       document.getElementById('subCategoryWrapper').classList.remove('hidden');
 
-      const subs = SUB_CATEGORIES[currentMainCat] || ['전체'];
-      subCatContainer.innerHTML = subs.map(sub => `
-        <button onclick="setSubCategory('${sub}')"
-          class="px-3 py-1 rounded-xl text-xs font-bold transition ${currentSubCat === sub ? 'bg-purple-500 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-purple-50'}">
-          ${sub}
-        </button>
-      `).join('');
+      const subs = SUB_CATEGORIES[currentMainCat] || [];
+      subCatContainer.innerHTML = subs.map(sub => {
+        const isChecked = activeSubCats.includes(sub);
+        return `
+          <label class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border ${isChecked ? 'bg-purple-500 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'}">
+            <input type="checkbox" value="${sub}" ${isChecked ? 'checked' : ''} onchange="toggleSubCatFilter('${sub}')" class="hidden">
+            ${sub}
+          </label>
+        `;
+      }).join('');
+    }
+
+    function toggleSubCatFilter(sub) {
+      const index = activeSubCats.indexOf(sub);
+      if (index > -1) {
+        activeSubCats.splice(index, 1);
+      } else {
+        activeSubCats.push(sub);
+      }
+      applyFilters();
     }
 
     function setViewMode(mode) {
@@ -775,13 +829,7 @@
 
     function setMainCategory(catKey) {
       currentMainCat = catKey;
-      currentSubCat = '전체';
-      renderFilters();
-      applyFilters();
-    }
-
-    function setSubCategory(sub) {
-      currentSubCat = sub;
+      activeSubCats = []; // 대분류 변경 시 세부 필터 초기화
       renderFilters();
       applyFilters();
     }
@@ -809,14 +857,22 @@
         if (currentViewMode === 'UNOWNED' && item.isOwned) return false;
 
         if (currentMainCat !== 'ALL' && item.mainCat !== currentMainCat) return false;
-        if (currentSubCat !== '전체' && item.subCat !== currentSubCat) return false;
+        
+        // 세부 시즌 중복 선택 필터링 (아이템의 subCats 배열 중 하나라도 activeSubCats에 포함되면 통과)
+        if (activeSubCats.length > 0) {
+          const itemSubs = item.subCats || (item.subCat ? [item.subCat] : []);
+          const hasMatch = itemSubs.some(s => activeSubCats.includes(s));
+          if (!hasMatch) return false;
+        }
+
         if (currentColor !== 'ALL' && item.color !== currentColor) return false;
 
         if (query) {
           const nameKr = (item.nameKr || '').toLowerCase();
           const nameJp = (item.nameJp || '').toLowerCase();
           const design = (item.designGroup || '').toLowerCase();
-          if (!nameKr.includes(query) && !nameJp.includes(query) && !design.includes(query)) return false;
+          const memo = (item.memo || '').toLowerCase();
+          if (!nameKr.includes(query) && !nameJp.includes(query) && !design.includes(query) && !memo.includes(query)) return false;
         }
         return true;
       });
@@ -832,8 +888,8 @@
           const pB = getCategoryPriority(b.mainCat);
           if (pA !== pB) return pA - pB;
           
-          const subA = a.subCat || '';
-          const subB = b.subCat || '';
+          const subA = (a.subCats || []).join(', ') || '';
+          const subB = (b.subCats || []).join(', ') || '';
           if (subA !== subB) return subA.localeCompare(subB, 'ko');
 
           return (a.nameKr || '').localeCompare(b.nameKr || '', 'ko');
@@ -906,6 +962,7 @@
       grid.innerHTML = items.map(item => {
         const colorObj = COLORS.find(c => c.id === item.color) || COLORS[1];
         const hasQrCount = Object.values(item.qrs || {}).filter(Boolean).length;
+        const subCatStr = (item.subCats || (item.subCat ? [item.subCat] : [])).join(', ');
 
         return `
           <div onclick="openDetailModal('${item.id}')"
@@ -942,10 +999,11 @@
 
               <div class="p-3">
                 <div class="text-[10px] font-bold text-purple-600 truncate">
-                  ${CATEGORIES[item.mainCat] || ''} • ${item.subCat || ''}
+                  ${CATEGORIES[item.mainCat] || ''} • ${subCatStr}
                 </div>
                 <h4 class="text-xs font-black text-slate-800 truncate">${item.nameKr}</h4>
                 <p class="text-[10px] text-slate-400 truncate jp-font">${item.nameJp}</p>
+                ${item.memo ? `<p class="text-[10px] bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded mt-1 truncate">📝 ${item.memo}</p>` : ''}
               </div>
             </div>
 
@@ -1040,7 +1098,9 @@
     function openAddModal(editId = null) {
       tempQrStore = { all: null, acc: null, top: null, bottom: null, shoes: null };
       tempMainImg = null;
+      tempFriendCard = null;
       activeQrTarget = 'all';
+      activeImgTarget = 'main';
 
       const mainSelect = document.getElementById('mainCatSelect');
       mainSelect.innerHTML = Object.keys(CATEGORIES)
@@ -1052,7 +1112,7 @@
         .filter(c => c.id !== 'ALL')
         .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 
-      updateSubCatDropdown();
+      renderModalSubCatCheckboxes([]);
 
       if (editId) {
         const item = codyList.find(c => c.id === editId);
@@ -1062,20 +1122,36 @@
           document.getElementById('nameJp').value = item.nameJp || '';
           document.getElementById('nameKr').value = item.nameKr || '';
           document.getElementById('mainCatSelect').value = item.mainCat;
-          updateSubCatDropdown();
-          document.getElementById('subCatSelect').value = item.subCat;
+          
+          renderModalSubCatCheckboxes(item.subCats || (item.subCat ? [item.subCat] : []));
+
           document.getElementById('colorSelect').value = item.color;
           document.getElementById('designGroup').value = item.designGroup || '';
+          document.getElementById('codyMemo').value = item.memo || '';
           document.getElementById('isOwnedCheck').checked = !!item.isOwned;
 
           tempMainImg = item.mainImg || null;
           if (tempMainImg) {
             document.getElementById('codyImgPreview').src = tempMainImg;
             document.getElementById('codyImgPreview').classList.remove('hidden');
+            document.getElementById('mainImgPrompt').classList.add('hidden');
             document.getElementById('removeMainImgBtn').classList.remove('hidden');
           } else {
             document.getElementById('codyImgPreview').classList.add('hidden');
+            document.getElementById('mainImgPrompt').classList.remove('hidden');
             document.getElementById('removeMainImgBtn').classList.add('hidden');
+          }
+
+          tempFriendCard = item.friendCard || null;
+          if (tempFriendCard) {
+            document.getElementById('friendCardPreview').src = tempFriendCard;
+            document.getElementById('friendCardPreview').classList.remove('hidden');
+            document.getElementById('friendCardPrompt').classList.add('hidden');
+            document.getElementById('removeFriendCardBtn').classList.remove('hidden');
+          } else {
+            document.getElementById('friendCardPreview').classList.add('hidden');
+            document.getElementById('friendCardPrompt').classList.remove('hidden');
+            document.getElementById('removeFriendCardBtn').classList.add('hidden');
           }
 
           tempQrStore = { ...(item.qrs || {}) };
@@ -1098,7 +1174,11 @@
         document.getElementById('editId').value = '';
         document.getElementById('isOwnedCheck').checked = false;
         document.getElementById('codyImgPreview').classList.add('hidden');
+        document.getElementById('mainImgPrompt').classList.remove('hidden');
         document.getElementById('removeMainImgBtn').classList.add('hidden');
+        document.getElementById('friendCardPreview').classList.add('hidden');
+        document.getElementById('friendCardPrompt').classList.remove('hidden');
+        document.getElementById('removeFriendCardBtn').classList.add('hidden');
         ['all', 'acc', 'top', 'bottom', 'shoes'].forEach(key => {
           document.getElementById(`qr_${key}_preview`).classList.add('hidden');
           document.getElementById(`qr_${key}_del`).classList.add('hidden');
@@ -1112,11 +1192,21 @@
       document.getElementById('addModal').classList.add('hidden');
     }
 
-    function updateSubCatDropdown() {
+    // 모달창 내 세부 시즌 중복 선택 체크박스 동적 렌더링
+    function renderModalSubCatCheckboxes(selectedList = []) {
       const mainVal = document.getElementById('mainCatSelect').value;
-      const subSelect = document.getElementById('subCatSelect');
-      const subs = (SUB_CATEGORIES[mainVal] || []).filter(s => s !== '전체');
-      subSelect.innerHTML = subs.map(s => `<option value="${s}">${s}</option>`).join('');
+      const container = document.getElementById('modalSubCatContainer');
+      const subs = SUB_CATEGORIES[mainVal] || [];
+
+      container.innerHTML = subs.map(sub => {
+        const isChecked = selectedList.includes(sub);
+        return `
+          <label class="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold cursor-pointer flex items-center gap-1.5 hover:bg-pink-50">
+            <input type="checkbox" name="modalSubCat" value="${sub}" ${isChecked ? 'checked' : ''} class="w-3.5 h-3.5 text-pink-500 rounded">
+            ${sub}
+          </label>
+        `;
+      }).join('');
     }
 
     function previewUploadImg(e) {
@@ -1128,6 +1218,7 @@
         const prev = document.getElementById('codyImgPreview');
         prev.src = tempMainImg;
         prev.classList.remove('hidden');
+        document.getElementById('mainImgPrompt').classList.add('hidden');
         document.getElementById('removeMainImgBtn').classList.remove('hidden');
       });
     }
@@ -1136,7 +1227,30 @@
       tempMainImg = null;
       document.getElementById('codyImgInput').value = '';
       document.getElementById('codyImgPreview').classList.add('hidden');
+      document.getElementById('mainImgPrompt').classList.remove('hidden');
       document.getElementById('removeMainImgBtn').classList.add('hidden');
+    }
+
+    function previewFriendCard(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      compressImageFile(file, 1000, 1000, (compressedUrl) => {
+        tempFriendCard = compressedUrl;
+        const prev = document.getElementById('friendCardPreview');
+        prev.src = tempFriendCard;
+        prev.classList.remove('hidden');
+        document.getElementById('friendCardPrompt').classList.add('hidden');
+        document.getElementById('removeFriendCardBtn').classList.remove('hidden');
+      });
+    }
+
+    function removeFriendCard() {
+      tempFriendCard = null;
+      document.getElementById('friendCardInput').value = '';
+      document.getElementById('friendCardPreview').classList.add('hidden');
+      document.getElementById('friendCardPrompt').classList.remove('hidden');
+      document.getElementById('removeFriendCardBtn').classList.add('hidden');
     }
 
     function handleQrUpload(e, key) {
@@ -1167,9 +1281,14 @@
       const nameJp = document.getElementById('nameJp').value.trim();
       const nameKr = document.getElementById('nameKr').value.trim();
       const mainCat = document.getElementById('mainCatSelect').value;
-      const subCat = document.getElementById('subCatSelect').value;
+      
+      // 체크된 세부 시즌들 배열로 수집
+      const checkedSubs = Array.from(document.querySelectorAll('input[name="modalSubCat"]:checked'))
+        .map(el => el.value);
+
       const color = document.getElementById('colorSelect').value;
       const designGroup = document.getElementById('designGroup').value;
+      const memo = document.getElementById('codyMemo').value.trim();
       const isOwned = document.getElementById('isOwnedCheck').checked;
 
       let colorVec = [200, 200, 200];
@@ -1190,9 +1309,12 @@
 
       const docId = editId || ('cody_' + Date.now());
       const codyData = {
-        nameJp, nameKr, mainCat, subCat, color, designGroup, isOwned,
+        nameJp, nameKr, mainCat,
+        subCats: checkedSubs, // 다중 선택된 세부 시즌 배열 저장
+        color, designGroup, memo, isOwned,
         isFav: editId ? (codyList.find(c => c.id === editId)?.isFav || false) : false,
         mainImg: tempMainImg || '',
+        friendCard: tempFriendCard || '',
         qrs: { ...tempQrStore },
         colorVec, layoutVec,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1238,13 +1360,14 @@
 
       const colorObj = COLORS.find(c => c.id === item.color) || COLORS[1];
       const recolorItems = findAutomaticRecolors(item);
+      const subCatStr = (item.subCats || (item.subCat ? [item.subCat] : [])).join(', ');
 
       const content = document.getElementById('detailContent');
       content.innerHTML = `
         <div class="space-y-4">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold px-3 py-1 rounded-full ${colorObj.bg} ${colorObj.text}">
-              ${CATEGORIES[item.mainCat]} • ${item.subCat} (${colorObj.name})
+              ${CATEGORIES[item.mainCat]} • ${subCatStr} (${colorObj.name})
             </span>
             <div class="flex gap-2">
               <button onclick="openAddModal('${item.id}'); closeDetailModal();" class="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-xl hover:bg-purple-100">
@@ -1259,13 +1382,24 @@
           <div class="text-center">
             <h2 class="text-xl font-black text-slate-800">${item.nameKr}</h2>
             <p class="text-xs text-slate-400 jp-font">${item.nameJp}</p>
+            ${item.memo ? `<p class="text-xs bg-amber-50 text-amber-800 px-3 py-1.5 rounded-xl font-semibold mt-2 inline-block">📝 메모: ${item.memo}</p>` : ''}
           </div>
 
-          <div class="h-64 bg-slate-50 rounded-2xl p-2 flex items-center justify-center overflow-hidden border">
-            ${item.mainImg 
-              ? `<img src="${item.mainImg}" class="h-full w-full object-contain">`
-              : `<p class="text-xs text-slate-400">등록된 대표 사진이 없습니다.</p>`
-            }
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="h-56 bg-slate-50 rounded-2xl p-2 flex flex-col items-center justify-center overflow-hidden border">
+              <span class="text-[11px] font-bold text-slate-500 mb-1">대표 사진</span>
+              ${item.mainImg 
+                ? `<img src="${item.mainImg}" class="h-44 w-full object-contain">`
+                : `<p class="text-xs text-slate-400">사진 없음</p>`
+              }
+            </div>
+            <div class="h-56 bg-purple-50/50 rounded-2xl p-2 flex flex-col items-center justify-center overflow-hidden border border-purple-100">
+              <span class="text-[11px] font-bold text-purple-600 mb-1">프렌즈 카드</span>
+              ${item.friendCard 
+                ? `<img src="${item.friendCard}" class="h-44 w-full object-contain">`
+                : `<p class="text-xs text-slate-400">등록된 프렌즈 카드 없음</p>`
+              }
+            </div>
           </div>
 
           <!-- QR CODES DISPLAY -->
@@ -1355,6 +1489,72 @@
         await batch.commit();
         alert("초기화되었습니다.");
       }
+    }
+
+    // 🌟 보유 코디만 QR 없이 PDF(인쇄)로 내보내기 기능
+    function exportOwnedPdf() {
+      const ownedItems = codyList.filter(c => c.isOwned);
+      if (ownedItems.length === 0) {
+        alert("보유 중(획득 완료)인 코디가 없습니다!");
+        return;
+      }
+
+      const printWin = window.open("", "_blank");
+      let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>보유 코디 도감 리스트 (QR 제외)</title>
+          <style>
+            body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; color: #333; }
+            h1 { text-align: center; color: #db2777; margin-bottom: 5px; }
+            p.sub { text-align: center; color: #666; font-size: 12px; margin-bottom: 30px; }
+            .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+            .card { border: 1px solid #fbcfe8; border-radius: 12px; padding: 12px; background: #fff; page-break-inside: avoid; }
+            .img-box { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; background: #fdf2f8; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+            .img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            .info { font-size: 12px; }
+            .cat { color: #9333ea; font-weight: bold; font-size: 10px; margin-bottom: 2px; }
+            .name { font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+            .jp { color: #666; font-size: 10px; margin-bottom: 4px; }
+            .memo { background: #fef3c7; color: #92400e; padding: 3px 6px; border-radius: 4px; font-size: 10px; margin-top: 4px; }
+          </style>
+        </head>
+        <body>
+          <h1>✨ 나의 보유 아이프리 코디 도감 ✨</h1>
+          <p class="sub">총 보유 코디 수: ${ownedItems.length}개 | 출력일시: ${new Date().toLocaleDateString()}</p>
+          <div class="grid">
+      `;
+
+      ownedItems.forEach(item => {
+        const subStr = (item.subCats || (item.subCat ? [item.subCat] : [])).join(', ');
+        html += `
+          <div class="card">
+            <div class="img-box">
+              <img src="${item.mainImg || ''}" />
+            </div>
+            <div class="info">
+              <div class="cat">${CATEGORIES[item.mainCat] || ''} • ${subStr}</div>
+              <div class="name">${item.nameKr}</div>
+              <div class="jp">${item.nameJp}</div>
+              ${item.memo ? `<div class="memo">📝 ${item.memo}</div>` : ''}
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+          <script>
+            window.onload = function() { window.print(); }
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      printWin.document.write(html);
+      printWin.document.close();
     }
 
     function exportData() {
