@@ -165,9 +165,12 @@
           </h2>
           <div class="flex gap-2 mb-2">
             <div class="relative flex-1">
-              <input type="text" id="searchInput" oninput="applyFilters()" placeholder="코디 이름 검색 (한글 또는 일본어)..."
-                class="w-full pl-9 pr-4 py-2 bg-white rounded-2xl border border-pink-200 text-xs focus:outline-none focus:border-pink-400">
+              <input type="text" id="searchInput" oninput="toggleSearchClearBtn(); applyFilters();" placeholder="코디 이름 검색 (한글 또는 일본어)..."
+                class="w-full pl-9 pr-8 py-2 bg-white rounded-2xl border border-pink-200 text-xs focus:outline-none focus:border-pink-400">
               <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+              <button id="searchClearBtn" onclick="clearSearchInput()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 hidden">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
             </div>
           </div>
 
@@ -204,6 +207,7 @@
         <div id="viewModeTabs" class="flex flex-wrap gap-2">
           <button onclick="setViewMode('ALL')" id="vTab_ALL" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-pink-500 text-white shadow-sm">전체 보기</button>
           <button onclick="setViewMode('FAV')" id="vTab_FAV" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">❤️ 즐겨찾기</button>
+          <button onclick="setViewMode('WANT')" id="vTab_WANT" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">⭐ 원하다</button>
           <button onclick="setViewMode('OWNED')" id="vTab_OWNED" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">✅ 획득함</button>
           <button onclick="setViewMode('UNOWNED')" id="vTab_UNOWNED" class="px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50">❌ 미획득</button>
         </div>
@@ -426,7 +430,7 @@
   </div>
 
   <!-- DETAIL MODAL -->
-  <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div id="detailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 hidden">
     <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar p-6 shadow-2xl relative">
       <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
         <i data-lucide="x" class="w-6 h-6"></i>
@@ -468,7 +472,7 @@
       'ONE': ['1탄', '2탄', '3탄', '4탄', '5탄', '6탄'],
       'MAGIC': ['1장', '2장', '3장', '4장', '5장', '6장', '스튜디오 1・2장', '스튜디오 3・4장', '스튜디오 5・6장', '스튜디오 7・8장', '스튜디오 9장', '스튜디오 10장'],
       'GUMI': ['히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
-      'MILFY': ['히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '히미프리 4탄', '히미프리 5탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
+      'MILFY': ['히미프리 1탄', '히미프리 2탄', '히미프리 3탄', '링 1탄', '링 2탄', '링 3탄', '오네프리 1탄', '오네프리 2탄', '오네프리 3탄', '오네프리 4탄', '오네프리 5탄', '오네프리 6탄'],
       'SPEC_HIMI': ['스페셜'],
       'SPEC_ONE': ['스페셜']
     };
@@ -476,7 +480,7 @@
     const COLORS = [
       { id: 'ALL', name: '전체', bg: 'bg-slate-200', text: 'text-slate-700' },
       { id: 'pink', name: '분홍', bg: 'bg-pink-400', text: 'text-white' },
-      { id: 'orange', name: '주황색', bg: 'bg-orange-400', text: 'text-white' },
+      { id: 'orange', name: '오렌지', bg: 'bg-orange-400', text: 'text-white' },
       { id: 'blue', name: '파랑', bg: 'bg-blue-400', text: 'text-white' },
       { id: 'yellow', name: '노랑', bg: 'bg-amber-300', text: 'text-slate-800' },
       { id: 'purple', name: '보라', bg: 'bg-purple-400', text: 'text-white' },
@@ -486,56 +490,12 @@
       { id: 'red', name: '빨강', bg: 'bg-red-500', text: 'text-white' }
     ];
 
+    // 자연스러운 번역 기능 (단어 사전 방식 대체)
     function translateJpToKr(text) {
       if (!text) return '';
-      const wordMap = {
-        'うさぎ': '토끼', 'ウサギ': '토끼',
-        'ぬいぐるみ': '인형',
-        'オレンジ': '주황색',
-        'バズリウム': '바즈리움',
-        'ラビット': '래빗',
-        'くらげ': '해파리', 'クラゲ': '해파리',
-        'サンキュー': '샌큐', 'フォーザ': '포 더', 'フォーエバー': '포에버',
-        'ワッチャ': '왓차', 'プリマジ': '프리마지', 'ひみつの': '비밀의',
-        'アイプリ': '아이프리', 'ハピネス': '해피니스', 'バタフライ': '버터플라이',
-        'にゃんにゃん': '냥냥', 'ニャンニャン': '냥냥', 'ロリータ': '로리타',
-        'フラワー': '플라워', 'カフェ': '카페', 'ピンク': '핑크', 'ブルー': '블루',
-        'イエロー': '옐로우', 'パープル': '퍼플', 'グリーン': '그린', 'ホワイト': '화이트',
-        'ブラック': '블랙', 'レッド': '레드', 'ドレス': '드레스', 'スタイル': '스타일',
-        'リボン': '리본', 'チェック': '체크', 'ハート': '하트', 'スター': '스타',
-        'クラウン': '크라운', 'プリンセス': '프린세스', 'ナイト': '나이트',
-        'ミルキー': '밀키', 'スイート': '스위트', 'スウィート': '스위트',
-        'キャット': '캣', 'ベア': '베어', 'ローズ': '로즈', 'フラミンゴ': '플라밍고',
-        'ゴシック': '고딕', 'エンジェル': '엔젤', 'デビル': '데빌', 'ふわふわ': '후와후와',
-        'キラキラ': '반짝반짝', 'もこもこ': '복실복실',
-        'エレメンツ': '엘리멘츠', 'サンシャイン': '선샤인', 'きらめきの': '반짝임의',
-        'ミッドナイト': '미드나이트', 'ラブリー': '러블리', 'メロディ': '멜로디',
-        'ステンドグラス': '스테인드글라스', 'みるき': '미루키', 'ミラクル': '미라클',
-        'れもん': '레몬', 'エンジェルバブル': '엔젤 버블', 'アップル': '애플',
-        'ティーパーティー': '티 파티', 'コスメティック': '코스메틱', 'フローラル': '플로럴'
-      };
+      let res = text.trim();
 
-      let res = text;
-      Object.keys(wordMap).forEach(jp => {
-        res = res.replace(new RegExp(jp, 'g'), wordMap[jp] + ' ');
-      });
-
-      const hiraToKata = {
-        'あ':'ア','い':'イ','う':'ウ','え':'エ','お':'オ','か':'カ','き':'キ','く':'ク','け':'ケ','こ':'コ',
-        'さ':'サ','し':'シ','す':'ス','せ':'セ','そ':'ソ','た':'タ','ち':'チ','つ':'ツ','て':'テ','と':'ト',
-        'な':'ナ','に':'ニ','ぬ':'ヌ','ね':'ネ','の':'ノ','は':'ハ','ひ':'ヒ','ふ':'フ','へ':'ヘ','ほ':'ホ',
-        'ま':'マ','み':'ミ','む':'ム','め':'메','も':'モ','や':'ヤ','ゆ':'ユ','よ':'ヨ','ら':'ラ','り':'リ',
-        'る':'ル','れ':'レ','ろ':'ロ','わ':'ワ','를':'ヲ','ん':'ン','が':'ガ','ぎ':'ギ','ぐ':'グ','げ':'ゲ',
-        'ご':'ゴ','ざ':'ザ','じ':'ジ','ず':'ズ','ぜ':'ゼ','ぞ':'ゾ','だ':'ダ','ぢ':'ヂ','づ':'ヅ','で':'デ',
-        'ど':'ド','ば':'バ','び':'ビ','ぶ':'ブ','べ':'ベ','ぼ':'ボ','ぱ':'パ','ぴ':'ピ','ぷ':'プ','ぺ':'ペ',
-        'ぽ':'ポ','っ':'ッ','ゃ':'ャ','ゅ':'ュ','ょ':'ョ'
-      };
-
-      let kataText = '';
-      for (let ch of res) {
-        kataText += hiraToKata[ch] || ch;
-      }
-
+      // 카타가나를 한글 발음으로 유연하게 변환하는 규칙표
       const kataMap = {
         'キャ': '캐', 'キュ': '큐', 'キョ': '쿄', 'シャ': '샤', 'シュ': '슈', 'ショ': '쇼',
         'チャ': '차', 'チュ': '추', 'チョ': '초', 'ニャ': '냐', 'ニュ': '뉴', 'ニョ': '뇨',
@@ -544,35 +504,63 @@
         'ジャ': '자', 'ジュ': '주', 'ジョ': '조', 'ビャ': '뱌', 'ビュ': '뷰', 'ビョ': '뵤',
         'ピャ': '피야', 'ピュ': '퓨', 'ピョ': '표', 'ティ': '티', 'ディ': '디', 'デュ': '듀',
         'ファ': '파', 'フィ': '피', 'フェ': '페', 'フォ': '포', 'ウィ': '위', 'ウェ': '웨',
-        'ウォ': '워', 'チェ': '체', 'シェ': '셰', 'ジェ': '제', 'ア': '아', 'イ': '이',
-        'ウ': '우', 'エ': '에', 'オ': '오', 'カ': '카', 'キ': '키', 'ク': '쿠', 'ケ': '케',
-        'コ': '코', 'サ': '사', 'シ': '시', 'ス': '스', 'セ': '세', 'ソ': '소', 'タ': '타',
-        'チ': '치', 'ツ': '츠', 'テ': '테', 'ト': '토', 'ナ': '나', 'ニ': '니', 'ヌ': '누',
-        'ネ': '네', 'ノ': '노', 'ハ': '하', 'ヒ': '히', 'フ': '후', 'ヘ': '헤', 'ホ': '호',
-        'マ': '마', 'ミ': '미', 'ム': '무', 'メ': '메', 'モ': '모', 'ヤ': '야', 'ユ': '유',
-        'ヨ': '요', 'ラ': '라', 'リ': '리', 'ル': '루', 'レ': '레', 'ロ': '로', 'ワ': '와',
-        'ヲ': '워', 'ン': '', 'ガ': '가', 'ギ': '기', 'グ': '구', 'ゲ': '게', 'ゴ': '고',
-        'ザ': '자', 'ジ': '지', 'ズ': '즈', 'ゼ': '제', 'ゾ': '조', 'ダ': '다', 'ヂ': '지',
-        'ヅ': '즈', 'デ': '데', 'ド': '도', 'バ': '바', 'ビ': '비', 'ブ': '부', 'ベ': '베',
-        'ボ': '보', 'パ': '파', 'ピ': '피', 'プ': '푸', 'ペ': '페', 'ポ': '포', 'ッ': 'ㅅ', 'ー': ''
+        'ウォ': '워', 'チェ': '체', 'シェ': '셰', 'ジェ': '제', 'ヴァ': '바', 'ヴィ': '비',
+        'ヴェ': '베', 'ヴォ': '보', 'ツァ': '차', 'ツィ': '치', 'ツェ': '체', 'ツォ': '초',
+        'ア': '아', 'イ': '이', 'ウ': '우', 'エ': '에', 'オ': '오', 
+        'カ': '카', 'キ': '키', 'ク': '쿠', 'ケ': '케', 'コ': '코', 
+        'サ': '사', 'シ': '시', 'ス': '스', 'セ': '세', 'ソ': '소', 
+        'タ': '타', 'チ': '치', 'ツ': '츠', 'テ': '테', 'ト': '토', 
+        'ナ': '나', 'ニ': '니', 'ヌ': '누', 'ネ': '네', 'ノ': '노', 
+        'ハ': '하', 'ヒ': '히', 'フ': '푸', 'ヘ': '헤', 'ホ': '호', 
+        'マ': '마', 'ミ': '미', 'ム': '무', 'メ': '메', 'モ': '모', 
+        'ヤ': '야', 'ユ': '유', 'ヨ': '요', 
+        'ラ': '라', 'リ': '리', 'ル': '루', 'レ': '레', 'ロ': '로', 
+        'ワ': '와', 'ヲ': '오', 'ン': 'ㄴ', 
+        'ガ': '가', 'ギ': '기', 'グ': '구', 'ゲ': '게', 'ゴ': '고', 
+        'ザ': '자', 'ジ': '지', 'ズ': '즈', 'ゼ': '제', 'ゾ': '조', 
+        'ダ': '다', 'ヂ': '지', 'ヅ': '즈', 'デ': '데', 'ド': '도', 
+        'バ': '바', 'ビ': '비', 'ブ': '부', 'ベ': '베', 'ボ': '보', 
+        'パ': '파', 'ピ': '피', 'プ': '푸', 'ペ': '페', 'ポ': '포', 
+        'ッ': 'ㅅ', 'ー': '', 'ァ': '아', 'ィ': '이', 'ゥ': '우', 'ェ': '에', 'ォ': '오',
+        'ゃ': '야', 'ゅ': '유', 'ょ': '요', 'ぁ': '아', 'ぃ': '이', 'ぅ': '우', 'ぇ': '에', 'ぉ': '오'
       };
 
-      let output = '';
+      // 주요 고유명사/단어 매칭 사전 (오렌지, 페더 등 정확한 교정 반영)
+      const exactMap = {
+        'オレンジ': '오렌지',
+        'フェザー': '페더',
+        'ペザ': '페더',
+        'うさぎ': '토끼', 'ウサギ': '토끼',
+        'ぬいぐるみ': '인형',
+        'バズリウム': '바즈리움',
+        'ラビット': '래빗',
+        'くらげ': '해파리', 'クラゲ': '해파리',
+        'ワッチャ': '왓차', 'プリマジ': '프리마지', 'ひみつの': '비밀의',
+        'アイプリ': '아이프리', 'ハピネス': '해피니스', 'バタフライ': '버터플라이',
+        'ドレス': '드레스', 'リボン': '리본', 'チェック': '체크', 'ハート': '하트'
+      };
+
+      Object.keys(exactMap).forEach(key => {
+        res = res.replace(new RegExp(key, 'g'), ' ' + exactMap[key] + ' ');
+      });
+
+      // 남은 가타카나 음차 변환
+      let converted = '';
       let i = 0;
-      while (i < kataText.length) {
-        if (i + 1 < kataText.length && kataMap[kataText.substr(i, 2)]) {
-          output += kataMap[kataText.substr(i, 2)];
+      while (i < res.length) {
+        if (i + 1 < res.length && kataMap[res.substr(i, 2)]) {
+          converted += kataMap[res.substr(i, 2)];
           i += 2;
-        } else if (kataMap[kataText[i]] !== undefined) {
-          output += kataMap[kataText[i]];
+        } else if (kataMap[res[i]] !== undefined) {
+          converted += kataMap[res[i]];
           i++;
         } else {
-          output += kataText[i];
+          converted += res[i];
           i++;
         }
       }
 
-      return output.replace(/\s+/g, ' ').trim();
+      return converted.replace(/\s+/g, ' ').trim();
     }
 
     let codyList = [];
@@ -595,6 +583,22 @@
 
     function setActiveQrTarget(key) {
       activeQrTarget = key;
+    }
+
+    function toggleSearchClearBtn() {
+      const val = document.getElementById('searchInput').value;
+      const clearBtn = document.getElementById('searchClearBtn');
+      if (val) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    }
+
+    function clearSearchInput() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchClearBtn').classList.add('hidden');
+      applyFilters();
     }
 
     function compressImageFile(file, maxWidth, maxHeight, callback) {
@@ -631,7 +635,7 @@
       reader.readAsDataURL(file);
     }
 
-    // Ctrl+V 붙여넣기 글로벌 이벤트 (대표사진, 프렌즈카드, QR 부위 동적 대응)
+    // Ctrl+V 붙여넣기 글로벌 이벤트
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData && e.clipboardData.items;
       if (!items) return;
@@ -783,7 +787,6 @@
       renderSubCategoryCheckboxes();
     }
 
-    // 메인 화면 세부 시즌 다중 선택 체크박스 렌더링
     function renderSubCategoryCheckboxes() {
       const subCatContainer = document.getElementById('subCategoryTabs');
       if (currentMainCat === 'ALL') {
@@ -796,7 +799,7 @@
       subCatContainer.innerHTML = subs.map(sub => {
         const isChecked = activeSubCats.includes(sub);
         return `
-          <label class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border ${isChecked ? 'bg-purple-500 text-white border-purple-600 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:bg-purple-50'}">
+          <label class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 border ${isChecked ? 'bg-pink-600 text-white border-pink-700 shadow-sm ring-2 ring-pink-300' : 'bg-white text-slate-700 border-slate-300 hover:bg-pink-50'}">
             <input type="checkbox" value="${sub}" ${isChecked ? 'checked' : ''} onchange="toggleSubCatFilter('${sub}')" class="hidden">
             ${sub}
           </label>
@@ -816,12 +819,14 @@
 
     function setViewMode(mode) {
       currentViewMode = mode;
-      ['ALL', 'FAV', 'OWNED', 'UNOWNED'].forEach(m => {
+      ['ALL', 'FAV', 'WANT', 'OWNED', 'UNOWNED'].forEach(m => {
         const btn = document.getElementById(`vTab_${m}`);
-        if (m === mode) {
-          btn.className = "px-3 py-1.5 rounded-2xl text-xs font-bold bg-pink-500 text-white shadow-sm";
-        } else {
-          btn.className = "px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50";
+        if (btn) {
+          if (m === mode) {
+            btn.className = "px-3 py-1.5 rounded-2xl text-xs font-bold bg-pink-500 text-white shadow-sm";
+          } else {
+            btn.className = "px-3 py-1.5 rounded-2xl text-xs font-bold bg-white text-slate-600 hover:bg-pink-50";
+          }
         }
       });
       applyFilters();
@@ -829,7 +834,7 @@
 
     function setMainCategory(catKey) {
       currentMainCat = catKey;
-      activeSubCats = []; // 대분류 변경 시 세부 필터 초기화
+      activeSubCats = []; 
       renderFilters();
       applyFilters();
     }
@@ -847,18 +852,33 @@
       return 99;
     }
 
+    // 탄 문자열에서 숫자나 순서를 추출하여 정렬 가중치를 부여하는 파서
+    function getSubCatOrderWeight(subCatStr) {
+      if (!subCatStr) return 999;
+      if (subCatStr.includes('스페셜')) return 500;
+      
+      const matchNum = subCatStr.match(/(\d+)/);
+      const num = matchNum ? parseInt(matchNum[1], 10) : 99;
+
+      if (subCatStr.includes('링')) return 100 + num;
+      if (subCatStr.includes('장')) return 200 + num;
+      if (subCatStr.includes('스튜디오')) return 300 + num;
+      
+      return num;
+    }
+
     function applyFilters() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const sortType = document.getElementById('sortSelect').value;
 
       let filtered = codyList.filter(item => {
         if (currentViewMode === 'FAV' && !item.isFav) return false;
+        if (currentViewMode === 'WANT' && !item.isWant) return false;
         if (currentViewMode === 'OWNED' && !item.isOwned) return false;
         if (currentViewMode === 'UNOWNED' && item.isOwned) return false;
 
         if (currentMainCat !== 'ALL' && item.mainCat !== currentMainCat) return false;
         
-        // 세부 시즌 중복 선택 필터링 (아이템의 subCats 배열 중 하나라도 activeSubCats에 포함되면 통과)
         if (activeSubCats.length > 0) {
           const itemSubs = item.subCats || (item.subCat ? [item.subCat] : []);
           const hasMatch = itemSubs.some(s => activeSubCats.includes(s));
@@ -888,9 +908,11 @@
           const pB = getCategoryPriority(b.mainCat);
           if (pA !== pB) return pA - pB;
           
-          const subA = (a.subCats || []).join(', ') || '';
-          const subB = (b.subCats || []).join(', ') || '';
-          if (subA !== subB) return subA.localeCompare(subB, 'ko');
+          const subStrA = (a.subCats || []).join(', ') || '';
+          const subStrB = (b.subCats || []).join(', ') || '';
+          const weightA = getSubCatOrderWeight(subStrA);
+          const weightB = getSubCatOrderWeight(subStrB);
+          if (weightA !== weightB) return weightA - weightB;
 
           return (a.nameKr || '').localeCompare(b.nameKr || '', 'ko');
         } 
@@ -936,6 +958,14 @@
       const item = codyList.find(c => c.id === id);
       if (item) {
         await codiesCollection.doc(id).update({ isFav: !item.isFav });
+      }
+    }
+
+    async function toggleWant(id, event) {
+      event.stopPropagation();
+      const item = codyList.find(c => c.id === id);
+      if (item) {
+        await codiesCollection.doc(id).update({ isWant: !item.isWant });
       }
     }
 
@@ -985,9 +1015,14 @@
                   </span>
                 ` : ''}
 
-                <button onclick="toggleFav('${item.id}', event)" class="absolute bottom-2 right-2 p-1.5 bg-white/80 backdrop-blur rounded-full shadow hover:scale-110 transition">
-                  <i data-lucide="heart" class="w-4 h-4 ${item.isFav ? 'fill-red-500 text-red-500' : 'text-slate-400'}"></i>
-                </button>
+                <div class="absolute bottom-2 right-2 flex gap-1">
+                  <button onclick="toggleWant('${item.id}', event)" class="p-1.5 bg-white/80 backdrop-blur rounded-full shadow hover:scale-110 transition" title="원하다">
+                    <i data-lucide="star" class="w-4 h-4 ${item.isWant ? 'fill-amber-400 text-amber-500' : 'text-slate-400'}"></i>
+                  </button>
+                  <button onclick="toggleFav('${item.id}', event)" class="p-1.5 bg-white/80 backdrop-blur rounded-full shadow hover:scale-110 transition" title="즐겨찾기">
+                    <i data-lucide="heart" class="w-4 h-4 ${item.isFav ? 'fill-red-500 text-red-500' : 'text-slate-400'}"></i>
+                  </button>
+                </div>
               </div>
 
               <div class="px-3 py-1 bg-slate-50 border-t border-b border-slate-100 flex items-center justify-between">
@@ -1192,7 +1227,6 @@
       document.getElementById('addModal').classList.add('hidden');
     }
 
-    // 모달창 내 세부 시즌 중복 선택 체크박스 동적 렌더링
     function renderModalSubCatCheckboxes(selectedList = []) {
       const mainVal = document.getElementById('mainCatSelect').value;
       const container = document.getElementById('modalSubCatContainer');
@@ -1282,7 +1316,6 @@
       const nameKr = document.getElementById('nameKr').value.trim();
       const mainCat = document.getElementById('mainCatSelect').value;
       
-      // 체크된 세부 시즌들 배열로 수집
       const checkedSubs = Array.from(document.querySelectorAll('input[name="modalSubCat"]:checked'))
         .map(el => el.value);
 
@@ -1310,9 +1343,10 @@
       const docId = editId || ('cody_' + Date.now());
       const codyData = {
         nameJp, nameKr, mainCat,
-        subCats: checkedSubs, // 다중 선택된 세부 시즌 배열 저장
+        subCats: checkedSubs,
         color, designGroup, memo, isOwned,
         isFav: editId ? (codyList.find(c => c.id === editId)?.isFav || false) : false,
+        isWant: editId ? (codyList.find(c => c.id === editId)?.isWant || false) : false,
         mainImg: tempMainImg || '',
         friendCard: tempFriendCard || '',
         qrs: { ...tempQrStore },
@@ -1491,13 +1525,39 @@
       }
     }
 
-    // 🌟 보유 코디만 QR 없이 PDF(인쇄)로 내보내기 기능
+    // 🌟 보유 코디만 QR 없이 PDF로 내보내기 (탄 순서 정렬 및 이로치 그룹화 묶음)
     function exportOwnedPdf() {
-      const ownedItems = codyList.filter(c => c.isOwned);
+      let ownedItems = codyList.filter(c => c.isOwned);
       if (ownedItems.length === 0) {
         alert("보유 중(획득 완료)인 코디가 없습니다!");
         return;
       }
+
+      // 탄 순서 및 이로치(디자인 그룹 혹은 유사도)끼리 묶여서 정렬되도록 그룹화 정렬 적용
+      ownedItems.sort((a, b) => {
+        const pA = getCategoryPriority(a.mainCat);
+        const pB = getCategoryPriority(b.mainCat);
+        if (pA !== pB) return pA - pB;
+
+        const subA = (a.subCats || []).join(', ') || '';
+        const subB = (b.subCats || []).join(', ') || '';
+        const wA = getSubCatOrderWeight(subA);
+        const wB = getSubCatOrderWeight(subB);
+        if (wA !== wB) return wA - wB;
+
+        // 이로치 그룹(designGroup)이 같은 경우 연속해서 묶이도록 정렬
+        const groupA = a.designGroup || '';
+        const groupB = b.designGroup || '';
+        if (groupA && groupB && groupA === groupB) {
+          return (a.nameKr || '').localeCompare(b.nameKr || '', 'ko');
+        } else if (groupA && !groupB) {
+          return -1;
+        } else if (!groupA && groupB) {
+          return 1;
+        }
+
+        return (a.nameKr || '').localeCompare(b.nameKr || '', 'ko');
+      });
 
       const printWin = window.open("", "_blank");
       let html = `
@@ -1505,24 +1565,24 @@
         <html>
         <head>
           <meta charset="UTF-8">
-          <title>보유 코디 도감 리스트 (QR 제외)</title>
+          <title>보유 코디 모음</title>
           <style>
             body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; color: #333; }
-            h1 { text-align: center; color: #db2777; margin-bottom: 5px; }
-            p.sub { text-align: center; color: #666; font-size: 12px; margin-bottom: 30px; }
+            h1 { text-align: center; color: #db2777; margin-bottom: 5px; font-size: 22px; }
+            p.sub { text-align: center; color: #666; font-size: 11px; margin-bottom: 25px; }
             .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
             .card { border: 1px solid #fbcfe8; border-radius: 12px; padding: 12px; background: #fff; page-break-inside: avoid; }
-            .img-box { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; background: #fdf2f8; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+            .img-box { width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; background: #fdf2f8; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
             .img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
             .info { font-size: 12px; }
             .cat { color: #9333ea; font-weight: bold; font-size: 10px; margin-bottom: 2px; }
-            .name { font-weight: bold; font-size: 14px; margin-bottom: 2px; }
+            .name { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
             .jp { color: #666; font-size: 10px; margin-bottom: 4px; }
             .memo { background: #fef3c7; color: #92400e; padding: 3px 6px; border-radius: 4px; font-size: 10px; margin-top: 4px; }
           </style>
         </head>
         <body>
-          <h1>✨ 나의 보유 아이프리 코디 도감 ✨</h1>
+          <h1>보유 코디 모음</h1>
           <p class="sub">총 보유 코디 수: ${ownedItems.length}개 | 출력일시: ${new Date().toLocaleDateString()}</p>
           <div class="grid">
       `;
